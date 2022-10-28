@@ -50,7 +50,7 @@ var curvaCubica = function (u, puntosDeControl) {
     Base0(u) * p0[2] + Base1(u) * p1[2] + Base2(u) * p2[2] + Base3(u) * p3[2];
 
 
-  return vec3.fromValues(x, y, z);
+  return [x, y, z];
 };
 
 var curvaCubicaDerivadaPrimera = function (u, puntosDeControl) {
@@ -75,13 +75,13 @@ var curvaCubicaDerivadaPrimera = function (u, puntosDeControl) {
     Base2der(u) * p2[2] +
     Base3der(u) * p3[2];
 
-  return vec3.fromValues(x, y, z);
+  return [x, y, z];
 };
 
 function dibujarCurvaCubica(puntosDeControl, segmentos) {
     let curva = new Object();
     curva.puntos = [];
-    curva.derivadas = [];
+    curva.tangentes = [];
 
     let deltaU = 1/segmentos;
     let n = puntosDeControl.length/4;
@@ -91,7 +91,7 @@ function dibujarCurvaCubica(puntosDeControl, segmentos) {
         
         for (let u = 0; u <= 1.001; u = u + deltaU) {      
             curva.puntos.push(curvaCubica(u, puntos));
-            curva.derivadas.push(curvaCubicaDerivadaPrimera(u, puntos));
+            curva.tangentes.push(curvaCubicaDerivadaPrimera(u, puntos));
         } 
     }
 
@@ -101,22 +101,46 @@ function dibujarCurvaCubica(puntosDeControl, segmentos) {
 function dibujarCircunferencia(radio, segmentos) {
 	let curva = new Object();
 	curva.puntos = [];
-	curva.derivadas = [];
+	curva.tangentes = [];
 
 	let deltaU = 1/segmentos;
 
 	for (let u = 0; u <= 1.001; u = u + deltaU) {
-	let x = radio * Math.cos(u * 2 * Math.PI);
+	let x = -radio * Math.cos(u * 2 * Math.PI);
 	let y = 0;
 	let z = radio * Math.sin(u * 2 * Math.PI);
 
-	curva.puntos.push(vec3.fromValues(x, y, z));
+	curva.puntos.push([x, y, z]);
 
-	x = -radio * Math.sin(u * 2 * Math.PI);
+	x = radio * Math.sin(u * 2 * Math.PI);
 	y = 0;
 	z = radio * Math.cos(u * 2 * Math.PI);
 
-	curva.derivadas.push(vec3.fromValues(x, y, z));
+	curva.tangentes.push([x, y, z]);
+	}
+
+	return curva;
+}
+
+function dibujarRecta(p0, p1, segmentos) {
+	let curva = new Object();
+	curva.puntos = [];
+	curva.tangentes = [];
+
+	let deltaU = 1/segmentos;
+
+	for (let u = 0; u <= 1.001; u = u + deltaU) {
+    let x = p0[0] + u*(p1[0] - p0[0]);
+    let y = p0[1] + u*(p1[1] - p0[1]);
+    let z = p0[2] + u*(p1[2] - p0[2]);
+
+    curva.puntos.push([x, y, z]);
+
+    x = p1[0] - p0[0];
+    y = p1[1] - p0[1];
+    z = p1[2] - p0[2];
+
+	  curva.tangentes.push([x, y, z]);
 	}
 
 	return curva;
