@@ -1,3 +1,4 @@
+
 let vec4 = glMatrix.vec4;
 
 function generarPlano(ancho, alto) {
@@ -49,16 +50,17 @@ function generarSuperficieParametrica(curva, figura) {
   for (let i = 0; i < curva.puntos.length; i++) {
     let punto = curva.puntos[i];
     let tangente = curva.tangentes[i];
+    let normal = curva.normales[i];
 
     let aux = vec3.create();
 
     let T = vec3.fromValues(tangente[0], tangente[1], tangente[2]);
     vec3.normalize(T, T);
+    let N = vec3.fromValues(normal[0], normal[1], normal[2]);
+    vec3.normalize(N, N);
 
     let B = vec3.create();
-    let N = vec3.create();
 
-    vec3.normalize(N, vec3.cross(aux, T, vec3.fromValues(0, 1, 0)));
     vec3.normalize(B, vec3.cross(aux, T, N));
 
     let M = mat4.fromValues(
@@ -69,18 +71,21 @@ function generarSuperficieParametrica(curva, figura) {
     );
 
     for (let j = 0; j < figura.puntos.length; j++) {
-      	let vertice = figura.puntos[j];
+      let vertice = figura.puntos[j];
 		
-      	let vprima = vec4.fromValues(vertice[0], vertice[1], vertice[2], 1);
-      	mat4.multiply(vprima, M, vprima);
+      let vprima = vec4.fromValues(vertice[0], vertice[1], vertice[2], 1);
+      mat4.multiply(vprima, M, vprima);
 
-      	positionBuffer.push(vprima[0]);
-      	positionBuffer.push(vprima[1]);
-      	positionBuffer.push(vprima[2]);
+      positionBuffer.push(vprima[0]);
+      positionBuffer.push(vprima[1]);
+      positionBuffer.push(vprima[2]);
 
-      	normalBuffer.push(figura.tangentes[j][0]);
-      	normalBuffer.push(figura.tangentes[j][1]);
-		normalBuffer.push(figura.tangentes[j][2]);
+      let n = vec3.fromValues(figura.normales[j][0], figura.normales[j][1], figura.normales[j][2]);
+      vec3.normalize(n, n);
+
+      normalBuffer.push(n[0]);
+      normalBuffer.push(n[1]);
+		  normalBuffer.push(n[2]);
 	}
   }
 
@@ -94,7 +99,7 @@ function generarSuperficieParametrica(curva, figura) {
 			indexBuffer.push(i * segRadiales + j + 1);
 			indexBuffer.push((i + 1) * segRadiales + j);
 			indexBuffer.push((i + 1) * segRadiales + j + 1);
-        }
+      }
     }
 
 

@@ -82,6 +82,8 @@ function dibujarCurvaCubica(puntosDeControl, segmentos) {
     let curva = new Object();
     curva.puntos = [];
     curva.tangentes = [];
+    curva.normales = [];
+
 
     let deltaU = 1/segmentos;
     let n = puntosDeControl.length/4;
@@ -91,7 +93,13 @@ function dibujarCurvaCubica(puntosDeControl, segmentos) {
         
         for (let u = 0; u <= 1.001; u = u + deltaU) {      
             curva.puntos.push(curvaCubica(u, puntos));
-            curva.tangentes.push(curvaCubicaDerivadaPrimera(u, puntos));
+            let tangente = curvaCubicaDerivadaPrimera(u, puntos);
+            curva.tangentes.push(tangente);
+            
+            let normal = vec3.create();
+            normal = vec3.cross(normal, vec3.fromValues(tangente[0], tangente[1], tangente[2]), vec3.fromValues(0, 1, 0));
+
+            curva.normales.push([normal[0], normal[1], normal[2]]);
         } 
     }
 
@@ -102,21 +110,27 @@ function dibujarCircunferencia(radio, segmentos) {
 	let curva = new Object();
 	curva.puntos = [];
 	curva.tangentes = [];
+	curva.normales = [];
+
 
 	let deltaU = 1/segmentos;
 
 	for (let u = 0; u <= 1.001; u = u + deltaU) {
-	let x = -radio * Math.cos(u * 2 * Math.PI);
-	let y = 0;
-	let z = radio * Math.sin(u * 2 * Math.PI);
+		let x = radio * Math.cos(u * 2 * Math.PI);
+		let y = 0;
+		let z = radio * Math.sin(u * 2 * Math.PI);
 
-	curva.puntos.push([x, y, z]);
+		curva.puntos.push([x, y, z]);
 
-	x = radio * Math.sin(u * 2 * Math.PI);
-	y = 0;
-	z = radio * Math.cos(u * 2 * Math.PI);
+		x = -radio * Math.sin(u * 2 * Math.PI);
+		y = 0;
+		z = radio * Math.cos(u * 2 * Math.PI);
 
-	curva.tangentes.push([x, y, z]);
+		curva.tangentes.push([x, y, z]);
+
+		let normal = vec3.create();
+		normal = vec3.cross(normal, vec3.fromValues(x, y, z), vec3.fromValues(0, -1, 0));
+		curva.normales.push([normal[0], normal[1], normal[2]]);
 	}
 
 	return curva;
@@ -126,22 +140,81 @@ function dibujarRecta(p0, p1, segmentos) {
 	let curva = new Object();
 	curva.puntos = [];
 	curva.tangentes = [];
+	curva.normales = [];
 
 	let deltaU = 1/segmentos;
 
 	for (let u = 0; u <= 1.001; u = u + deltaU) {
-    let x = p0[0] + u*(p1[0] - p0[0]);
-    let y = p0[1] + u*(p1[1] - p0[1]);
-    let z = p0[2] + u*(p1[2] - p0[2]);
+		let x = p0[0] + u*(p1[0] - p0[0]);
+		let y = p0[1] + u*(p1[1] - p0[1]);
+		let z = p0[2] + u*(p1[2] - p0[2]);
 
-    curva.puntos.push([x, y, z]);
+		curva.puntos.push([x, y, z]);
 
-    x = p1[0] - p0[0];
-    y = p1[1] - p0[1];
-    z = p1[2] - p0[2];
+		x = p1[0] - p0[0];
+		y = p1[1] - p0[1];
+		z = p1[2] - p0[2];
 
-	  curva.tangentes.push([x, y, z]);
+		curva.tangentes.push([x, y, z]);
+		let normal = vec3.create();
+		normal = vec3.cross(normal, vec3.fromValues(x, y, z), vec3.fromValues(0, 1, 0));
+		curva.normales.push([normal[0], normal[1], normal[2]]);
+
 	}
 
 	return curva;
+}
+
+function fun(u, n) {
+  let cosn = Math.cos(Math.PI/n);
+  let arg = 2 * Math.PI/n *(u / (2*Math.PI/n) - Math.abs(u / (2*Math.PI/n))) - Math.PI/n
+
+  return cosn / Math.cos(arg);
+}
+
+function dibujarPoligono(escala, n, segmentos) {
+ 	let curva = new Object();
+	curva.puntos = [];
+	curva.tangentes = [];
+	curva.normales = [];
+
+	let deltaU = 1/segmentos;
+  
+ 	for (let u = 0; u <= 1.001; u = u + deltaU) {
+    let u_next = u + deltaU;
+
+    if(u_next > 1.001){
+      u_next = 0;
+    }
+
+    let k = fun(u * 2 * Math.PI, n);
+    let cosu = Math.cos(u * 2 * Math.PI);
+    let sinu = Math.sin(u * 2 * Math.PI);
+
+		let x = escala * cosu * k;
+		let y = 0;
+		let z = escala * sinu  * k;
+
+    let k_next = fun(u_next * 2 * Math.PI, n);
+    let cosu_next = Math.cos(u_next * 2 * Math.PI);
+    let sinu_next = Math.sin(u_next * 2 * Math.PI);
+
+		let x_next = escala * cosu_next * k_next;
+		let y_next = 0;
+		let z_next = escala * sinu_next  * k_next;
+
+		curva.puntos.push([x, y, z]);
+
+		x = x_next - x;
+		y = y_next - y;
+		z = z_next - z;
+
+		curva.tangentes.push([x, y, z]);
+		let normal = vec3.create();
+		normal = vec3.cross(normal, vec3.fromValues(x, y, z), vec3.fromValues(0, -1, 0));
+		curva.normales.push([normal[0], normal[1], normal[2]]);
+
+	}
+
+	return curva; 
 }

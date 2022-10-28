@@ -51,8 +51,12 @@ class Objeto {
 		var modelMatrixUniform = gl.getUniformLocation(this.Program, "modelMatrix");
 		gl.uniformMatrix4fv(modelMatrixUniform, false, m);
 
+		var normalMatrixUniform  = gl.getUniformLocation(this.Program, "normalMatrix");
+
 		mat4.transpose(this.matriz_normales, this.matriz_modelado); 
 		mat4.invert(this.matriz_normales, this.matriz_modelado);
+	
+		gl.uniformMatrix4fv(normalMatrixUniform, false, this.matriz_normales);
 
 		if (this.vertexBuffer && this.indexBuffer && this.normalBuffer){
 
@@ -61,12 +65,12 @@ class Objeto {
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
 			gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
 
-			if (this.Program.vertexNormalAttribute != -1) {
-				vertexNormalAttribute = gl.getAttribLocation(this.Program, "aVertexNormal");
-				gl.enableVertexAttribArray(vertexNormalAttribute);
-				gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
-				gl.vertexAttribPointer(vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
-			}
+
+			vertexNormalAttribute = gl.getAttribLocation(this.Program, "aVertexNormal");
+			gl.enableVertexAttribArray(vertexNormalAttribute);
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
+			gl.vertexAttribPointer(vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
+
 
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 			gl.drawElements( gl.TRIANGLES, this.indexBuffer.number_vertex_point, gl.UNSIGNED_SHORT, 0);

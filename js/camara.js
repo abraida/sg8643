@@ -4,7 +4,7 @@ class Camara{
         this.previousClientX = 0;
         this.previousClientY = 0;
         this.radio = 5;
-        this.alfa = 0;
+        this.alfa = Math.PI/2;
         this.beta = Math.PI/2;
         this.factorVelocidad = 0.01;
         this.isMouseDown = false;
