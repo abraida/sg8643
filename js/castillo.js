@@ -70,7 +70,7 @@ function crear_muro(h, lados) {
 	[.7*6+.4, h, 0], [.7*6+.4, .6*h, 0], [.56*6+.4, .3*h, 0], [.5*6+.4, 0, 0],	
 	];
 	
-	let path = dibujarPoligono(20, lados, lados);
+	let path = dibujarCircunferencia(20, lados);
 
 	let shape = dibujarCurvaCubica(puntos, 50);
 	return generarSuperficieParametrica(path, shape);

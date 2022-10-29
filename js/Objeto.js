@@ -53,8 +53,8 @@ class Objeto {
 
 		var normalMatrixUniform  = gl.getUniformLocation(this.Program, "normalMatrix");
 
-		mat4.transpose(this.matriz_normales, this.matriz_modelado); 
 		mat4.invert(this.matriz_normales, this.matriz_modelado);
+		mat4.transpose(this.matriz_normales, this.matriz_normales); 
 	
 		gl.uniformMatrix4fv(normalMatrixUniform, false, this.matriz_normales);
 

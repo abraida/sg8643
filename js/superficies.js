@@ -80,8 +80,12 @@ function generarSuperficieParametrica(curva, figura) {
       positionBuffer.push(vprima[1]);
       positionBuffer.push(vprima[2]);
 
-      let n = vec3.fromValues(figura.normales[j][0], figura.normales[j][1], figura.normales[j][2]);
-      vec3.normalize(n, n);
+      let n = vec4.fromValues(figura.normales[j][0], figura.normales[j][1], figura.normales[j][2], 1);
+
+      mat4.multiply(n, M, n);
+      vec3.sub(n, n, vec3.fromValues(punto[0], punto[1], punto[2]));
+
+      vec4.normalize(n, n);
 
       normalBuffer.push(n[0]);
       normalBuffer.push(n[1]);
