@@ -1,3 +1,4 @@
+
 class Objeto {
 	constructor() {
 		this.Program = null;
@@ -16,6 +17,8 @@ class Objeto {
 		this.alpha = 0;
 		
 		this.hijos = [];
+
+		this.wpos = vec3.fromValues(0, 0, 0);
 	}
 
 	actualizarMatrizModelado() { 
@@ -47,7 +50,7 @@ class Objeto {
 		this.actualizarMatrizModelado();
 		
 		mat4.multiply(m, matPadre, this.matriz_modelado);
-
+		this.wpos = m;
 		var modelMatrixUniform = gl.getUniformLocation(this.Program, "modelMatrix");
 		gl.uniformMatrix4fv(modelMatrixUniform, false, m);
 
@@ -96,7 +99,9 @@ class Objeto {
 	};
 
 	quitarHijo(h) {
-		this.hijos.splice(hijos.indexOf(h));
+		let i = this.hijos.indexOf(h);
+		if(i > 0)
+			this.hijos.splice(i, 1);
 	};
 
 	setPosicion(x, y, z) { 
@@ -116,4 +121,5 @@ class Objeto {
 		this.escala[1] = y;
 		this.escala[2] = z;
 	};
+
 } 

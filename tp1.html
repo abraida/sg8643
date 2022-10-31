@@ -18,17 +18,22 @@
 			</center>
 		</div>
 
-        <script type="text/javascript" src="js/gl-matrix.js"></script>
-        <script src="js/dat.gui.js"></script>
-		<script src="js/jquery-3.6.1.min.js"></script>
-        <script src="js/curvas.js"></script>
-        <script src="js/superficies.js"></script>
-		<script src="js/Objeto.js"></script>
-		<script src="js/castillo.js"></script>
-		<script src="js/catapulta.js"></script>
+        <script type="text/javascript" src="js/import/gl-matrix.js"></script>
+        <script src="js/import/dat.gui.js"></script>
+		<script src="js/import/jquery-3.6.1.min.js"></script>
+        
+		<script src="js/src/interfaz.js"></script>
+        <script src="js/src/curvas.js"></script>
+        <script src="js/src/superficies.js"></script>
+		<script src="js/src/Objeto.js"></script>
+		<script src="js/src/castillo.js"></script>
+		<script src="js/src/catapulta.js"></script>
 
-		<script src="js/terreno.js"></script>
-		<script src="js/camara.js"></script>
+		<script src="js/src/terreno.js"></script>
+		<script src="js/src/camara.js"></script>
+
+		<script src="js/init.js"></script>
+
 
         <script id="shader-vs" type="x-shader/x-vertex">
 
@@ -70,273 +75,8 @@
         </script>
         
         <script>
-            var mat4 = glMatrix.mat4;
-            var vec3 = glMatrix.vec3;
-            
-            var gl = null;
-            
-            var canvas = null,
-            glProgram = null,
-            fragmentShader = null,
-            vertexShader = null;
-            
-            var vertexPositionAttribute = null,
-            trianglesVerticeBuffer = null,
-            vertexNormalAttribute = null,
-            trianglesNormalBuffer = null,
-            trianglesIndexBuffer = null;
-            
-            var modelMatrix = mat4.create();
-            var viewMatrix = mat4.create();
-            var projMatrix = mat4.create();
-            var normalMatrix = mat4.create();
-            
-            var castillo = null;
-            var terreno = null;
-            var catapulta = null;
 
-            
-			var orbital_castillo = new Camara(0, 0, 0);
-			var orbital_catapulta = new Camara(-5, 0 , -5);
-            var camara = orbital_catapulta;
-
-            var aspect=null;
-            
-            var anchoEdificio = 15;
-            var largoEdificio = 15;
-            var altoMuralla = 10;
-            var pisosEdificio = 4;
-            var ladosMuralla = 8;
-
-            var DIBUJAR_CASTILLO = true;
-            var DIBUJAR_CATAPULTA = true;
-            var DIBUJAR_TERRENO = true;
-
-			$("canvas").mousemove(function (e) {	
-				camara.movimientoMouse(e.clientX || e.pageX, e.clientY || e.pageY);
-			});
-
-			$('canvas').mousedown(function (event) {
-				camara.mouseDown();
-
-			});
-
-			$('canvas').mouseup(function (event) {
-				camara.mouseUp();
-			});
-
-			function zoom(event) {
-				if (event.deltaY < 0) {					
-					camara.disminuirZoom(event.deltaY * -0.001);
-				} else {
-					camara.aumentarZoom(event.deltaY * 0.001);				
-				}
-			}
-
-            document.addEventListener('keyup', (event) => {
-                const keyName = event.key;
-
-                // As the user releases the Ctrl key, the key is no longer active,
-                // so event.ctrlKey is false.
-                if (keyName === '1') {
-                    camara = orbital_castillo;
-                    camara.rotar();
-                    drawScene();
-                }
-                if (keyName === '2') {
-                    camara = orbital_catapulta;
-                    camara.rotar();
-                    drawScene();                
-                }
-            }, false);
-
-
-            document.addEventListener('wheel', zoom);
-
-            function initWebGL() {
-				canvas = document.getElementById("canvas");
-				
-				try {
-					gl = canvas.getContext("webgl");
-				} catch (e) {
-				alert("Error: Your browser does not appear to support WebGL.");
-				}
-				
-				if (gl) {
-					setupWebGL();
-					initShaders();
-                    initMenu();
-					setupVertexShaderMatrix();
-					setupModelos();
-					drawScene();
-					tick();
-				} else {
-					alert("Error: Your browser does not appear to support WebGL.");
-				}
-            }
-            
-            function setupWebGL() {
-				gl.enable(gl.DEPTH_TEST);
-				//set the clear color
-				gl.clearColor(0.1, 0.1, 0.1, 1.0);
-				gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-				
-				gl.viewport(0, 0, canvas.width, canvas.height);
-				
-				aspect = canvas.width/canvas.height;
-            
-				// Matrix de Proyeccion Perspectiva
-
-
-				mat4.perspective(projMatrix, 45, canvas.width / canvas.height, 0.1, 100.0);
-				
-				mat4.identity(viewMatrix);
-				mat4.translate(viewMatrix, viewMatrix, [0.0, 0.0, -5.0]);
-            }
-
-            function initMenu() {
-                let gui = new dat.GUI();
-
-                var edificio = gui.addFolder('Castillo');
-                gui.add(window, "anchoEdificio", 10, 20).step(0.5);
-                gui.add(window, "largoEdificio", 10, 20).step(0.5);
-                gui.add(window, "pisosEdificio", 1, 10).step(1);
-                
-                var muralla = gui.addFolder('Muralla');
-                gui.add(window, "altoMuralla", 5, 15).step(0.5);
-                gui.add(window, "ladosMuralla", 4, 8).step(1);
-
-                var debug = gui.addFolder('Debug');
-
-                gui.add(window, 'DIBUJAR_CASTILLO');
-                gui.add(window, 'DIBUJAR_CATAPULTA');
-                gui.add(window, 'DIBUJAR_TERRENO');
-
-                var render = gui.addFolder('Renderizar');
-
-                var b = { add: function () { setupModelos() } };
-                gui.add(b, 'add');
-
-
-            }
-
-
-            function initShaders() {
-                //get shader source
-                var fs_source = document.getElementById("shader-fs").innerHTML,
-                vs_source = document.getElementById("shader-vs").innerHTML;
-                
-                //compile shaders
-                vertexShader = makeShader(vs_source, gl.VERTEX_SHADER);
-                fragmentShader = makeShader(fs_source, gl.FRAGMENT_SHADER);
-                
-                //create program
-                glProgram = gl.createProgram();
-                
-                //attach and link shaders to the program
-                gl.attachShader(glProgram, vertexShader);
-                gl.attachShader(glProgram, fragmentShader);
-                gl.linkProgram(glProgram);
-                
-                if (!gl.getProgramParameter(glProgram, gl.LINK_STATUS)) {
-                alert("Unable to initialize the shader program.");
-                }
-                
-                //use program
-                gl.useProgram(glProgram);
-            }
-            
-            function makeShader(src, type) {
-                //compile the vertex shader
-                var shader = gl.createShader(type);
-                gl.shaderSource(shader, src);
-                gl.compileShader(shader);
-            
-                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                    console.log("Error compiling shader: " + gl.getShaderInfoLog(shader));
-                }
-
-                return shader;
-            }
-            
-            function setupVertexShaderMatrix() {
-                var modelMatrixUniform = gl.getUniformLocation(glProgram, "modelMatrix");
-                var viewMatrixUniform = gl.getUniformLocation(glProgram, "viewMatrix");
-                var projMatrixUniform = gl.getUniformLocation(glProgram, "projMatrix");
-                var normalMatrixUniform = gl.getUniformLocation(glProgram, "normalMatrix");
-                
-                gl.uniformMatrix4fv(modelMatrixUniform, false, modelMatrix);
-                gl.uniformMatrix4fv(viewMatrixUniform, false, viewMatrix);
-                gl.uniformMatrix4fv(projMatrixUniform, false, projMatrix);
-                gl.uniformMatrix4fv(normalMatrixUniform, false, normalMatrix);
-            }
-            
-            function setupModelos() {
-				castillo = crear_castillo(anchoEdificio, largoEdificio, pisosEdificio, altoMuralla, ladosMuralla);
-				castillo.setProgram(glProgram);
-				castillo.setPosicion(0, 0, 0);
-
-				terreno = crear_terreno();
-				terreno.setProgram(glProgram);
-				terreno.setPosicion(0, 0, 0);
-
-                catapulta = crear_catapulta();
-				catapulta.setProgram(glProgram);
-
-				catapulta.setPosicion(-5, .05, -5);    
-                catapulta.setRotacion(0,1,0, -50/180*Math.PI );
-				castillo.setEscala(.1, .1, .1);
-				terreno.setEscala(.1, .1, .1);
-				catapulta.setEscala(.2, .2, .2);    
-
-
-            }
-            
-            function dibujarMalla(mallaDeTriangulos) {
-                vertexPositionAttribute = gl.getAttribLocation(glProgram, "aVertexPosition");
-                gl.enableVertexAttribArray(vertexPositionAttribute);
-                gl.bindBuffer(gl.ARRAY_BUFFER, mallaDeTriangulos.webgl_position_buffer);
-                gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-                
-                vertexNormalAttribute = gl.getAttribLocation(glProgram, "aVertexNormal");
-                gl.enableVertexAttribArray(vertexNormalAttribute);
-                gl.bindBuffer(gl.ARRAY_BUFFER, mallaDeTriangulos.webgl_normal_buffer);
-                gl.vertexAttribPointer(vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
-                
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mallaDeTriangulos.webgl_index_buffer);
-                gl.drawElements( gl.TRIANGLES, mallaDeTriangulos.webgl_index_buffer.number_vertex_point, gl.UNSIGNED_SHORT, 0);
-            }
-            
-            function drawScene() {
-				gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);	
-							
-				mat4.lookAt(viewMatrix,
-				vec3.fromValues(camara.pos[0], camara.pos[1], camara.pos[2]),
-				vec3.fromValues(camara.obj[0], camara.obj[1], camara.obj[2]),
-				vec3.fromValues(0, 1, 0)
-				);
-				
-				setupVertexShaderMatrix();
-
-				let m = mat4.create;
-				mat4.identity(m, m);
-                if(DIBUJAR_CASTILLO)
-				    castillo.dibujar(m);
-				if(DIBUJAR_CATAPULTA)
-                    catapulta.dibujar(m);
-                if (DIBUJAR_TERRENO)
-                    terreno.dibujar(m);
-            }
-            
-
-			function tick() {
-				requestAnimationFrame(tick);
-				camara.rotar();
-				drawScene();
-			}
-
-            window.onload = initWebGL;
         </script>
-
     </body>
+    <script src="/js/main.js"></script>
 </html>

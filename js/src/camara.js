@@ -1,11 +1,11 @@
 
 class Camara{
-	constructor(x, y, z){
+	constructor(x, y, z, r){
         this.previousClientX = 0;
         this.previousClientY = 0;
-        this.radio = 6;
-        this.alfa = Math.PI/2;
-        this.beta = 1.6*Math.PI;
+        this.radio = r;
+        this.alfa = -Math.PI/2;
+        this.beta = Math.PI/4;
         this.factorVelocidad = 0.01;
         this.isMouseDown = false;
         this.mouse = {x: 0, y: 0};
@@ -31,8 +31,8 @@ class Camara{
 			this.alfa = this.alfa + deltaX * this.factorVelocidad;
 			this.beta = this.beta + deltaY * this.factorVelocidad;
 
-			if (this.beta<0) this.beta=0;
-			if (this.beta>Math.PI) this.beta=Math.PI;
+			if (this.beta<0.001) this.beta=0.001;
+			if (this.beta>Math.PI-0.001) this.beta=Math.PI-0.001;
 
 			this.pos = [this.radio * this.zoom * Math.sin(this.alfa) * Math.sin(this.beta), this.radio * this.zoom * Math.cos(this.beta) ,this.radio * this.zoom * Math.cos(this.alfa) * Math.sin(this.beta)];
 

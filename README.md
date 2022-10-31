@@ -4,8 +4,7 @@ Incompleto
 ## Por hacer
 
 *	Arreglar normales
-*	Catapulta
+*	arreglar lanzamiento de catapulta
+*	Puerta
 * 	Camara primera persona
-* 	Ventanas
-*	Arreglos camara orbital
 *	Refactorizar y optimizaciones varias
