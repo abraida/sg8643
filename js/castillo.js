@@ -4,20 +4,22 @@ let alto_piso = 4;
 function crear_torre(pisos) {
 	let r = 1.5;
 	let alto1 = (pisos - 1) * alto_piso;
+	let c1 = dibujarRecta([-r, 0, 0], [-r, alto1, 0], 2);
 	let puntos = [
-		[-r,0,0], [-r, 0, 0], [-r, alto1, 0], [-r, alto1, 0],
-		[-r, alto1, 0], [-r - 0.17, alto1 + 2.5, 0], [-r -0.7, alto1 + 2.25, 0], [-r-0.5, alto1 + 3.1, 0],
-		[-r-0.5, alto1 + 3.1, 0],	
-		[-r-0.5, alto1 + 3.1, 0],
-		[-r-0.5, alto1 + 3.1 + alto_piso/2, 0],	
-		[-r-0.5, alto1 + 3.1 + alto_piso/2, 0],	
-
+		[-r, alto1, 0], [-r - 0.17, alto1 + 2.5, 0], [-r -0.7, alto1 + 2.25, 0], [-r-0.5, alto1 + 3.1, 0]
 	]
+
+	let c2 = dibujarRecta([-r-0.5, alto1+3.1, 0], [-r-0.5, alto1 + 3.1 + alto_piso/2, 0], 3);
+	
 	let shape = dibujarCurvaCubica(puntos, 20); 
+	
+	shape = concatenar(c1, shape);
+	shape = concatenar(shape, c2);
+
 
 	let path = dibujarCircunferencia(0.001, 20);
 
-	return generarSuperficieParametrica(path, shape);
+	return generar_superficie_barrido(path, shape);
 }
 
 function crear_punta() {
@@ -30,50 +32,77 @@ function crear_punta() {
 	let shape = dibujarCurvaCubica(puntos, 5);
 	let path = dibujarCircunferencia(0.001, 20);
 
-	return generarSuperficieParametrica(path, shape);	
+	return generar_superficie_barrido(path, shape);	
 }
 
 function crear_pared(largo, alto) {
-	return generarPlano(largo, alto);
+	return generar_plano(largo, alto);
 }
 
 function crear_ventana() {
 	let path =  new Object();
 
-	let puntos = [[0, 0, 0], [0, 1, 0], [.66, 1, 0], [.66, 0, 0], 
-	[.66, 0, 0], [.66, 0, 0], [0, 0, 0], [0, 0, 0]];
+	let puntos = [[0, 0, 0], [0, 1.5, 0], [.99, 1.5, 0], [.99, 0, 0], 
+	[.99, 0, 0], [.99, 0, 0], [0, 0, 0], [0, 0, 0]];
 
-	shape = dibujarCurvaCubica(puntos, 20);
-
-	path.puntos = [[0, 0, 0], [0, 0, .5]];
+	shape = dibujarCurvaCubica(puntos, 50);
+	
+	path.puntos = [[0, 0, -.6], [0, 0, .6]];
 	path.tangentes = [[0, 0, 1], [0, 0, 1]];
-	path.normales = [[1, 0, 1], [1, 0, 0]];
+	path.normales = [[1, 0, 0], [1, 0, 0]];
 
-
-	return generarSuperficieParametrica(path, shape);
+	return generar_superficie_barrido(path, shape, true);
 }
 
 function crear_piso(largo, ancho) {
-	return generarPlano(largo+.5, ancho+.5);	
+	return generar_plano(largo+.5, ancho+.5);	
 }
-function crear_muro(h, lados) {
-	let a = .5;
+function crear_muro(a, lados) {
+	let h = .5;
 	let puntos = [
-	[0, 0, 0], [.06*6, .3*h, 0], [.2*6, .6*h, 0], [.2*6, h, 0], 
-	[.2*6, h, 0], [.2*6, h, 0], [.2*6, h+.3, 0], [.2*6, h+.3, 0],
-	[.2*6, h+a, 0], [.2*6, h+a, 0], [.2*6+.2, h+a, 0], [.2*6+.2, h+a, 0],
-	[.2*6+.2, h+a, 0], [.2*6+.2, h+a, 0], [.2*6+.2, h, 0], [.2*6+.2, h, 0],
-	[.2*6+.2, h, 0], [.2*6+.2, h, 0], [.7*6+.2, h, 0], [.7*6+.2, h, 0],
-	[.7*6+.2, h, 0], [.7*6+.2, h, 0], [.7*6+.2, h+a, 0], [.7*6+.2, h+a, 0],
-	[.7*6+.2, h+a, 0], [.7*6+.2, h+a, 0], [.7*6+.4, h+a, 0], [.7*6+.4, h+a, 0],
-	[.7*6+.4, h+a, 0], [.7*6+.4, h+a, 0], [.7*6+.4, h, 0], [.7*6+.4, h, 0],
-	[.7*6+.4, h, 0], [.7*6+.4, .6*h, 0], [.56*6+.4, .3*h, 0], [.5*6+.4, 0, 0],	
+	[0, 0, 0], [.06*6, .3*a, 0], [.2*6, .6*a, 0], [.2*6, a, 0], 
+	[.2*6, a, 0], [.2*6, a, 0], [.2*6, a+.3, 0], [.2*6, a+.3, 0],
+	[.2*6, a+h, 0], [.2*6, a+h, 0], [.2*6+.2, a+h, 0], [.2*6+.2, a+h, 0],
+	[.2*6+.2, a+h, 0], [.2*6+.2, a+h, 0], [.2*6+.2, a, 0], [.2*6+.2, a, 0],
+	[.2*6+.2, a, 0], [.2*6+.2, a, 0], [.7*6+.2, a, 0], [.7*6+.2, a, 0],
+	[.7*6+.2, a, 0], [.7*6+.2, a, 0], [.7*6+.2, a+h, 0], [.7*6+.2, a+h, 0],
+	[.7*6+.2, a+h, 0], [.7*6+.2, a+h, 0], [.7*6+.4, a+h, 0], [.7*6+.4, a+h, 0],
+	[.7*6+.4, a+h, 0], [.7*6+.4, a+h, 0], [.7*6+.4, a, 0], [.7*6+.4, a, 0],
+	[.7*6+.4, a, 0], [.7*6+.4, .6*a, 0], [.56*6+.4, .3*a, 0], [.5*6+.4, 0, 0],	
 	];
 	
-	let path = dibujarCircunferencia(20, lados);
+	let path = dibujarCircunferencia(30, lados);
 
 	let shape = dibujarCurvaCubica(puntos, 50);
-	return generarSuperficieParametrica(path, shape);
+	return generar_superficie_barrido(path, shape);
+}
+
+function crear_torre_muralla(alto) {
+	let r = 4;
+	let h = 1;
+	let a = alto - h;
+	let puntos = [
+		[-r, 0, 0], [-r, a/2, 0], [-.65*r, a/3, 0], [-.65*r, a, 0],
+		[-.65*r, a, 0], [-.65*r, a, 0], [-.8*r, a, 0], [-.8*r, a+h*2, 0]
+	];
+
+	let c1 = dibujarRecta([-.8*r, a+h*2, 0], [-.8*r, a+h*2+h, 0], 2);
+	
+	let c2 = dibujarRecta([-.8*r, a+h*2+h, 0], [-.7*r, a+h*2+h, 0], 2);
+	let c3 = dibujarRecta([-.7*r, a+h*2+h, 0], [-.7*r, a+h*2, 0], 2);
+	let c4 = dibujarRecta([-.7*r, a+h*2, 0], [0, a+h*2, 0], 2);
+
+	let shape = dibujarCurvaCubica(puntos, 10);
+	shape = concatenar(shape, c1);
+	shape = concatenar(shape, c2);
+	shape = concatenar(shape, c3);
+	shape = concatenar(shape, c4);
+
+
+	let path = dibujarCircunferencia(0.001, 10);
+
+	return generar_superficie_barrido(path, shape);
+
 }
 
 function crear_castillo(ancho, largo, pisos, altoMuralla, ladosMuralla) {
@@ -167,35 +196,36 @@ function crear_castillo(ancho, largo, pisos, altoMuralla, ladosMuralla) {
 	// Ventanas
 	let geomVentana = crear_ventana();
 
-	let deltaVentanas = 2;
-	let n_ventanas = (ancho - 2) / deltaVentanas;
-	for (let j = 1; j <= pisos; j++) {
+	let deltaVentanas = 3;
+	let n_ventanas = (ancho - 4) / deltaVentanas;
+
+	for (let j = 0; j < pisos; j++) {
 		for (let i = 0; i < n_ventanas; i++) {
 			let v = new Objeto();
 			v.setGeometria(geomVentana.webgl_position_buffer, geomVentana.webgl_index_buffer, geomVentana.webgl_normal_buffer);
-			v.setPosicion(i * deltaVentanas + 2, alto_piso * j / 2, -.5);
-			//paredSur.agregarHijo(v);
+			v.setPosicion(i * deltaVentanas + 2, alto_piso * (j+.4), -.5);
+			paredSur.agregarHijo(v);
 		}
 
 		for (let i = 0; i < ancho / deltaVentanas; i++) {
 			let v = new Objeto();
 			v.setGeometria(geomVentana.webgl_position_buffer, geomVentana.webgl_index_buffer, geomVentana.webgl_normal_buffer);
-			v.setPosicion(i * deltaVentanas, alto_piso * j / 2, -.5);
-			//paredNorte.agregarHijo(v);
+			v.setPosicion(i * deltaVentanas + 2, alto_piso * (j+.4), -.5);
+			paredNorte.agregarHijo(v);
 		}
 
 		for (let i = 0; i < largo / deltaVentanas; i++) {
 			let v = new Objeto();
 			v.setGeometria(geomVentana.webgl_position_buffer, geomVentana.webgl_index_buffer, geomVentana.webgl_normal_buffer);
-			v.setPosicion(.5, alto_piso * j / 2, -i * deltaVentanas);
-			//paredEste.agregarHijo(v);
+			v.setPosicion(i * deltaVentanas + 2, alto_piso * (j+.4), -.5);
+			paredEste.agregarHijo(v);
 		}
 
 		for (let i = 0; i < largo / deltaVentanas; i++) {
 			let v = new Objeto();
 			v.setGeometria(geomVentana.webgl_position_buffer, geomVentana.webgl_index_buffer, geomVentana.webgl_normal_buffer);
-			v.setPosicion(.5, alto_piso * j / 2, -i * deltaVentanas);
-			//paredOeste.agregarHijo(v);
+			v.setPosicion(i * deltaVentanas + 2, alto_piso * (j+.4), -.5);
+			paredOeste.agregarHijo(v);
 		}
 	}
 
@@ -216,6 +246,17 @@ function crear_castillo(ancho, largo, pisos, altoMuralla, ladosMuralla) {
 	let geomMuro = crear_muro(altoMuralla, ladosMuralla);
 	muro.setGeometria(geomMuro.webgl_position_buffer, geomMuro.webgl_index_buffer, geomMuro.webgl_normal_buffer);
 	muralla.agregarHijo(muro);
+
+	// Torres muro
+	let geomTorreM = crear_torre_muralla(altoMuralla*1.5);
+	let puntosTorres = dibujarCircunferencia(27, ladosMuralla).puntos;
+
+	for (let i = 0; i < ladosMuralla; i++) {
+		let t = new Objeto();
+		t.setGeometria(geomTorreM.webgl_position_buffer, geomTorreM.webgl_index_buffer, geomTorreM.webgl_normal_buffer);
+		t.setPosicion(puntosTorres[i][0], 0, puntosTorres[i][2]);
+		muro.agregarHijo(t);
+	}
 
 	return contenedor
 }

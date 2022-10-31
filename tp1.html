@@ -25,6 +25,8 @@
         <script src="js/superficies.js"></script>
 		<script src="js/Objeto.js"></script>
 		<script src="js/castillo.js"></script>
+		<script src="js/catapulta.js"></script>
+
 		<script src="js/terreno.js"></script>
 		<script src="js/camara.js"></script>
 
@@ -60,8 +62,8 @@
 
             void main(void) {
                 vec3 lightVec=normalize(vec3(0.0,3.0,5.0));
-                vec3 diffColor=mix(vec3(0.4,0.4,0.4),vPosWorld,0.7);
-                vec3 color=dot(lightVec,vNormal)*diffColor+vec3(0.2,0.2,0.2);
+                vec3 diffColor=mix(vec3(0.4,0.4,0.4),vPosWorld,0.4);
+                vec3 color=dot(lightVec,vNormal)*diffColor+vec3(0.1,0.1,0.1);
 
                gl_FragColor = vec4(color,1.0);
             }
@@ -91,8 +93,12 @@
             
             var castillo = null;
             var terreno = null;
+            var catapulta = null;
+
             
-			var camara = new Camara();
+			var orbital_castillo = new Camara(0, 0, 0);
+			var orbital_catapulta = new Camara(-5, 0 , -5);
+            var camara = orbital_catapulta;
 
             var aspect=null;
             
@@ -101,6 +107,10 @@
             var altoMuralla = 10;
             var pisosEdificio = 4;
             var ladosMuralla = 8;
+
+            var DIBUJAR_CASTILLO = true;
+            var DIBUJAR_CATAPULTA = true;
+            var DIBUJAR_TERRENO = true;
 
 			$("canvas").mousemove(function (e) {	
 				camara.movimientoMouse(e.clientX || e.pageX, e.clientY || e.pageY);
@@ -122,8 +132,27 @@
 					camara.aumentarZoom(event.deltaY * 0.001);				
 				}
 			}
-			document.addEventListener('wheel', zoom);
-            
+
+            document.addEventListener('keyup', (event) => {
+                const keyName = event.key;
+
+                // As the user releases the Ctrl key, the key is no longer active,
+                // so event.ctrlKey is false.
+                if (keyName === '1') {
+                    camara = orbital_castillo;
+                    camara.rotar();
+                    drawScene();
+                }
+                if (keyName === '2') {
+                    camara = orbital_catapulta;
+                    camara.rotar();
+                    drawScene();                
+                }
+            }, false);
+
+
+            document.addEventListener('wheel', zoom);
+
             function initWebGL() {
 				canvas = document.getElementById("canvas");
 				
@@ -177,10 +206,17 @@
                 gui.add(window, "altoMuralla", 5, 15).step(0.5);
                 gui.add(window, "ladosMuralla", 4, 8).step(1);
 
+                var debug = gui.addFolder('Debug');
+
+                gui.add(window, 'DIBUJAR_CASTILLO');
+                gui.add(window, 'DIBUJAR_CATAPULTA');
+                gui.add(window, 'DIBUJAR_TERRENO');
+
                 var render = gui.addFolder('Renderizar');
 
-                var obj = { add: function () { setupModelos() } };
-                gui.add(obj, 'add');
+                var b = { add: function () { setupModelos() } };
+                gui.add(b, 'add');
+
 
             }
 
@@ -244,8 +280,16 @@
 				terreno.setProgram(glProgram);
 				terreno.setPosicion(0, 0, 0);
 
+                catapulta = crear_catapulta();
+				catapulta.setProgram(glProgram);
+
+				catapulta.setPosicion(-5, .05, -5);    
+                catapulta.setRotacion(0,1,0, -50/180*Math.PI );
 				castillo.setEscala(.1, .1, .1);
 				terreno.setEscala(.1, .1, .1);
+				catapulta.setEscala(.2, .2, .2);    
+
+
             }
             
             function dibujarMalla(mallaDeTriangulos) {
@@ -268,7 +312,7 @@
 							
 				mat4.lookAt(viewMatrix,
 				vec3.fromValues(camara.pos[0], camara.pos[1], camara.pos[2]),
-				vec3.fromValues(0, 0, 0),
+				vec3.fromValues(camara.obj[0], camara.obj[1], camara.obj[2]),
 				vec3.fromValues(0, 1, 0)
 				);
 				
@@ -276,8 +320,12 @@
 
 				let m = mat4.create;
 				mat4.identity(m, m);
-				castillo.dibujar(m);
-				terreno.dibujar(m);
+                if(DIBUJAR_CASTILLO)
+				    castillo.dibujar(m);
+				if(DIBUJAR_CATAPULTA)
+                    catapulta.dibujar(m);
+                if (DIBUJAR_TERRENO)
+                    terreno.dibujar(m);
             }
             
 

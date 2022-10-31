@@ -9,4 +9,3 @@ Incompleto
 * 	Ventanas
 *	Arreglos camara orbital
 *	Refactorizar y optimizaciones varias
-*	Concatenar curvas de distinto tipo

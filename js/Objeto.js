@@ -19,8 +19,6 @@ class Objeto {
 	}
 
 	actualizarMatrizModelado() { 
-		if(this.escala)
-			mat4.scale(this.matriz_modelado, this.matriz_modelado, this.escala);
 		if(this.posicion)
 			mat4.translate(this.matriz_modelado, this.matriz_modelado, this.posicion);    
 		if (this.rotacion)
@@ -29,7 +27,9 @@ class Objeto {
 			this.matriz_modelado,
 			this.alpha,
 			this.rotacion
-			);
+		);
+		if(this.escala)
+			mat4.scale(this.matriz_modelado, this.matriz_modelado, this.escala);
 	};
 
 

@@ -1,17 +1,20 @@
 
 class Camara{
-	constructor(){
+	constructor(x, y, z){
         this.previousClientX = 0;
         this.previousClientY = 0;
-        this.radio = 5;
+        this.radio = 6;
         this.alfa = Math.PI/2;
-        this.beta = Math.PI/2;
+        this.beta = 1.6*Math.PI;
         this.factorVelocidad = 0.01;
         this.isMouseDown = false;
         this.mouse = {x: 0, y: 0};
         this.zoom = 1.0;
+        this.obj = [x, y, z];
 
 		this.pos = [this.radio * this.zoom * Math.sin(this.alfa) * Math.sin(this.beta), this.radio * this.zoom * Math.cos(this.beta) ,this.radio * this.zoom * Math.cos(this.alfa) * Math.sin(this.beta)];
+
+        this.pos = [this.pos[0] + this.obj[0], this.pos[1] + this.obj[1], this.pos[2] + this.obj[2]];
 	}
 
 	rotar(){
@@ -33,11 +36,13 @@ class Camara{
 
 			this.pos = [this.radio * this.zoom * Math.sin(this.alfa) * Math.sin(this.beta), this.radio * this.zoom * Math.cos(this.beta) ,this.radio * this.zoom * Math.cos(this.alfa) * Math.sin(this.beta)];
 
+            this.pos = [this.pos[0] + this.obj[0], this.pos[1] + this.obj[1], this.pos[2] + this.obj[2]];
+
 		}
 	}
 
     disminuirZoom(zoom){
-        if (this.zoom - zoom >= .5){
+        if (this.zoom - zoom >= .1){
             this.zoom -= zoom;
             var mouse = this.isMouseDown;
             this.isMouseDown = true;
@@ -46,7 +51,7 @@ class Camara{
         }
     }
     aumentarZoom(zoom){
-        if (this.zoom + zoom <= 2){
+        if (this.zoom + zoom <= 3){
             this.zoom += zoom;
             var mouse = this.isMouseDown;
             this.isMouseDown = true;
