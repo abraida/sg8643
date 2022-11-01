@@ -85,6 +85,8 @@ class Camara{
 class CamaraFP extends Camara {
     constructor(x, y, z, r) {
         super(x, y, z, r);
+        this.entity = this.crearEje();
+
         this.alfa = 0;
         this.beta = Math.PI/2;
 
@@ -93,14 +95,22 @@ class CamaraFP extends Camara {
         this.rotacionEje = .6;
         this.adelante = vec3.fromValues(0, 0, .2);
         this.derecha = vec3.fromValues(.2, 0, 0);
-
+        
+        this.mover(0, 0);
         this.rotarEje(0);
+        
         this.obj = [this.radio * this.zoom * Math.sin(this.alfa) * Math.sin(this.beta), this.radio * this.zoom * Math.cos(this.beta) ,this.radio * this.zoom * Math.cos(this.alfa) * Math.sin(this.beta)];
+        
     }
 
     mover(d, a){
 
         this.pos = [this.pos[0] + this.derecha[0] * d + this.adelante[0] * a, this.pos[1], this.pos[2] + this.derecha[2] * d + this.adelante[2] * a];
+
+        this.entity.setPosicion(
+            this.pos[0] + this.adelante[0], 
+            this.pos[1]-.2, 
+            this.pos[2] + this.adelante[2]);
 
         this.rotar();
     }
@@ -110,6 +120,7 @@ class CamaraFP extends Camara {
 
         var m = mat4.create();
         mat4.fromRotation(m, this.rotacionEje, vec3.fromValues(0, 1, 0));
+        this.entity.setRotacion(0, 1, 0, this.rotacionEje + Math.PI/2);
 
         this.adelante = vec3.fromValues(0,0,.2);
         this.derecha = vec3.fromValues(.2,0,0);
@@ -141,7 +152,22 @@ class CamaraFP extends Camara {
 	}
 
     obtenerTarget(){
-            return [this.obj[0] + this.pos[0], this.obj[1] + this.pos[1], this.obj[2] + this.pos[2]];
+        return [this.obj[0] + this.pos[0], this.obj[1] + this.pos[1], this.obj[2] + this.pos[2]];
+    }
+
+    crearEje(){
+        let shape = new Object();
+        shape.puntos = [[0,0,0], [-1, 0, 0], [-1, .1, 0], [0, .1, 0]]
+        shape.normales = [[0, -1, 0], [-1, 0, 0], [0, 1, 0], [1, 0, 0]];
+
+        let path = path_circle(.001, 5, 0, .5);
+
+        let geom = generar_superficie_barrido(path, shape, true);
+
+        let e = new Objeto()
+        e.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+        e.setEscala(.1, .3, .1);
+        return e;
     }
 
 }

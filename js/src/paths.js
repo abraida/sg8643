@@ -87,12 +87,12 @@ var curvaCubicaDerivadaPrimera = function (u, puntosDeControl) {
   return [x, y, z];
 };
 
-function path_circle(radio, segmentos) {
+function path_circle(radio, segmentos, a = 0, b= 2*Math.PI) {
 	let curva = new Object();
   	curva.matricesPuntos = [];
   	curva.matricesNormales = [];
 
-	let deltaU = 1/segmentos * 2 * Math.PI;
+	let deltaU = 1/segmentos * (b-a);
 
 	for (let u = 0; u <= segmentos; u++) {
 		let x = radio * Math.cos(u * deltaU);

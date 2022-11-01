@@ -5,5 +5,3 @@ Incompleto
 
 *	Puerta
 *	Arreglar catapulta
-*	Permitir lanzamientos multiples
-*	Refactorizar y optimizaciones varias

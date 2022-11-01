@@ -3,9 +3,8 @@ var castillo = null;
 var terreno = null;
 var catapulta = null;
 
-var orbital_castillo = new Camara(0, 0, 0, 10);
-var orbital_catapulta = new Camara(-5, 0, -5, 2);
-var primera_persona = new CamaraFP(-8, 1, -8, 1);
+var orbital_castillo = null;  orbital_catapulta = null; 
+var primera_persona = null; 
 
 var camara = orbital_castillo;
 
@@ -17,19 +16,31 @@ var rotacion_velocidad = 0.01;
 var anterior = vec3.create();
 var actual = vec3.create();
 var vel = vec3.create();
+
+var anteriorDis = null;
+var actual = null;
+var velDis = null;
+
 var disparo = null;
-var DISPARO_ACTIVO = false;
+var CATAPULTA_DISPONIBLE = true;
 
 function disparar_catapulta() {	
-	if (rotacion_brazo > .5) {
+	if(!CATAPULTA_DISPONIBLE)
+		return;
+
+	if (rotacion_brazo > .45) {
 		disparo = catapulta.lanzar_municion();
+		actualDis = actual;
+		anteriorDis = anterior;
+
 		disparo.setEscala(.03, .03, .03);
 		disparo.setProgram(glProgram);
-		DISPARO_ACTIVO = true;
+		CATAPULTA_DISPONIBLE = false;
+
 		lanzar_municion();
 		restaurar_catapulta();
-	} else{
-		DISPARO_ACTIVO = false;
+	} else{	
+		disparo = null;	
 		requestAnimationFrame(disparar_catapulta)
 		catapulta.disparar(rotacion_brazo);
 		rotacion_brazo += rotacion_velocidad;
@@ -44,20 +55,23 @@ function disparar_catapulta() {
 function restaurar_catapulta() {
 	if (rotacion_brazo < 0) {
 		catapulta.restaurar_municion();
+		CATAPULTA_DISPONIBLE = true;
 	} else {
 		requestAnimationFrame(restaurar_catapulta);
 		
 	}
 	
 	catapulta.disparar(rotacion_brazo);
-	rotacion_brazo -= rotacion_velocidad/5;
+	rotacion_brazo -= rotacion_velocidad/2;
+
 }
 
 function lanzar_municion() {
 	requestAnimationFrame(lanzar_municion);
-	actual = [anterior[0] + vel[0],anterior[1] + vel[1],anterior[2] +  vel[2]]
-	disparo.setPosicion(actual[0], actual[1], actual[2]);
-	anterior = actual;
+	actualDis = [anteriorDis[0] + vel[0],anteriorDis[1] + vel[1],anteriorDis[2] +  vel[2]]
+	disparo.setPosicion(actualDis[0], actualDis[1], actualDis[2]);
+	anteriorDis = actualDis;
+	vel[1] -= 0.00001;
 }
 
 function setup_modelos() {
@@ -96,6 +110,9 @@ function draw_scene() {
 	castillo.setProgram(glProgram);
 	terreno.setProgram(glProgram);
 	catapulta.setProgram(glProgram);
+	
+	primera_persona.entity.setProgram(glProgram);
+	primera_persona.entity.dibujar(m);
 
 	if(DIBUJAR_CASTILLO)
 		castillo.dibujar(m);
@@ -103,7 +120,8 @@ function draw_scene() {
 		catapulta.dibujar(m);
 	if (DIBUJAR_TERRENO)
 		terreno.dibujar(m);
-	if (DISPARO_ACTIVO)
+
+	if(disparo != null)
 		disparo.dibujar(m);
 }
 

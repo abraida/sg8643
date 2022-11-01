@@ -30,6 +30,7 @@ function initWebGL() {
 		initShaders();
 		initMenu();
 		setupVertexShaderMatrix();
+		setupCameras();
 		setup_modelos();
 		draw_scene();
 		tick();
@@ -105,4 +106,13 @@ function setupVertexShaderMatrix() {
 	gl.uniformMatrix4fv(viewMatrixUniform, false, viewMatrix);
 	gl.uniformMatrix4fv(projMatrixUniform, false, projMatrix);
 	gl.uniformMatrix4fv(normalMatrixUniform, false, normalMatrix);
+}
+
+function setupCameras() {
+	orbital_castillo = new Camara(0, 0, 0, 10);
+
+	orbital_catapulta = new Camara(-5, 0, -5, 2);
+	primera_persona = new CamaraFP(-8, .6, -8, 1);
+
+	camara = orbital_castillo;
 }

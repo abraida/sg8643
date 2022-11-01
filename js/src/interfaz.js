@@ -28,15 +28,26 @@ var renderizar = function() {
 }
 
 $("canvas").mousemove(function (e) {	
+	if(!camara)
+		return;
+
 	camara.movimientoMouse(e.clientX || e.pageX, e.clientY || e.pageY);
 });
 
+
+
 $('canvas').mousedown(function (event) {
+	if(!camara)
+		return;
+		
 	camara.mouseDown();
 
 });
 
 $('canvas').mouseup(function (event) {
+	if(!camara)
+		return;
+		
 	camara.mouseUp();
 });
 
@@ -116,39 +127,35 @@ function initMenu() {
 	let gui = new dat.GUI();
 
 	var edificio = gui.addFolder('Castillo');
-	gui.add(window, "anchoEdificio", 10, 20).step(0.5);
-	gui.add(window, "largoEdificio", 10, 20).step(0.5);
-	gui.add(window, "pisosEdificio", 1, 10).step(1);
-
-	var muralla = gui.addFolder('Muralla');
-	gui.add(window, "altoMuralla", 5, 15).step(0.5);
-	gui.add(window, "ladosMuralla", 4, 8).step(1);
+	edificio.add(window, "anchoEdificio", 10, 20).step(0.5);
+	edificio.add(window, "largoEdificio", 10, 20).step(0.5);
+	edificio.add(window, "pisosEdificio");
+	edificio.add(window, "altoMuralla", 5, 15).step(0.5);
+	edificio.add(window, "ladosMuralla", 4, 8).step(1);
+	edificio.add(window, "renderizar");
 
 	var escena = gui.addFolder("Escena");
 
-	gui.add(window, "rotacionCatapulta", 0, 360).step(1).onChange(event => {
+	escena.add(window, "rotacionCatapulta", 0, 360).step(1).onChange(event => {
 		setup_modelos();
 	});
-	gui.add(window, "disparar");
+	escena.add(window, "disparar");
 
 
 
-	var first = gui.addFolder("Camara");
-	var pos1 = gui.add(parameters, 'a').name('Castillo').listen().onChange(function(){
+	var cam = gui.addFolder("Camara");
+	cam.add(parameters, 'a').name('Castillo').listen().onChange(function(){
 		setChecked("a");
-		camara = orbital_castillo;
+		cam = orbital_castillo;
 	});
-	var neg1 = gui.add(parameters, 'b').name('Catapulta').listen().onChange(function(){
+	cam.add(parameters, 'b').name('Catapulta').listen().onChange(function(){
 		setChecked("b");
 		camara = orbital_catapulta;
 	});
-	var neu1 = gui.add(parameters, 'c').name('Primera Persona').listen().onChange(function(){
+	cam.add(parameters, 'c').name('Primera Persona').listen().onChange(function(){
 		setChecked("c");
 		camara = primera_persona;
 
 	});
 
-	var render = gui.addFolder('Renderizar');
-
-	gui.add(window, "renderizar");
 }
