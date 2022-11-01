@@ -5,7 +5,9 @@ var catapulta = null;
 
 var orbital_castillo = new Camara(0, 0, 0, 10);
 var orbital_catapulta = new Camara(-5, 0, -5, 2);
-var camara = orbital_catapulta;
+var primera_persona = new CamaraFP(-8, 1, -8, 1);
+
+var camara = orbital_castillo;
 
 var aspect=null;
 
@@ -77,9 +79,11 @@ function setup_modelos() {
 function draw_scene() {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);	
 				
+	var obj = camara.obtenerTarget();
+	
 	mat4.lookAt(viewMatrix,
 	vec3.fromValues(camara.pos[0], camara.pos[1], camara.pos[2]),
-	vec3.fromValues(camara.obj[0], camara.obj[1], camara.obj[2]),
+	vec3.fromValues(obj[0], obj[1], obj[2]),
 	vec3.fromValues(0, 1, 0)
 	);
 	
