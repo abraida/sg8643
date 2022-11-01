@@ -4,20 +4,21 @@ let alto_piso = 4;
 function crear_torre(pisos) {
 	let r = 1.5;
 	let alto1 = (pisos - 1) * alto_piso;
-	let c1 = dibujarRecta([-r, 0, 0], [-r, alto1, 0], 2);
+	let c1 = shape_line([-r, 0, 0], [-r, alto1, 0], 1);
+
 	let puntos = [
 		[-r, alto1, 0], [-r - 0.17, alto1 + 2.5, 0], [-r -0.7, alto1 + 2.25, 0], [-r-0.5, alto1 + 3.1, 0]
 	]
-
-	let c2 = dibujarRecta([-r-0.5, alto1+3.1, 0], [-r-0.5, alto1 + 3.1 + alto_piso/2, 0], 3);
 	
-	let shape = dibujarCurvaCubica(puntos, 20); 
+	let shape = shape_cubica(puntos, 10); 
+
+	let c2 = shape_line([-r-0.5, alto1+3.1, 0], [-r-0.5, alto1 + 3.1 + alto_piso/2, 0], 2);
+	
 	
 	shape = concatenar(c1, shape);
 	shape = concatenar(shape, c2);
 
-
-	let path = dibujarCircunferencia(0.001, 20);
+	let path = path_circle(0.001, 10);
 
 	return generar_superficie_barrido(path, shape);
 }
@@ -29,8 +30,8 @@ function crear_punta() {
 		[-0.25*r, 3, 0], [0, 5, 0],
 	]
 	
-	let shape = dibujarCurvaCubica(puntos, 5);
-	let path = dibujarCircunferencia(0.001, 20);
+	let shape = shape_cubica(puntos, 5);
+	let path = path_circle(0.001, 20);
 
 	return generar_superficie_barrido(path, shape);	
 }
@@ -40,16 +41,13 @@ function crear_pared(largo, alto) {
 }
 
 function crear_ventana() {
-	let path =  new Object();
-
+	
 	let puntos = [[0, 0, 0], [0, 1.5, 0], [.99, 1.5, 0], [.99, 0, 0], 
 	[.99, 0, 0], [.99, 0, 0], [0, 0, 0], [0, 0, 0]];
-
-	shape = dibujarCurvaCubica(puntos, 50);
 	
-	path.puntos = [[0, 0, -.6], [0, 0, .6]];
-	path.tangentes = [[0, 0, 1], [0, 0, 1]];
-	path.normales = [[1, 0, 0], [1, 0, 0]];
+	shape = shape_cubica(puntos, 10);
+	
+	let path = path_line(2, 1.2);
 
 	return generar_superficie_barrido(path, shape, true);
 }
@@ -71,9 +69,9 @@ function crear_muro(a, lados) {
 	[.7*6+.4, a, 0], [.7*6+.4, .6*a, 0], [.56*6+.4, .3*a, 0], [.5*6+.4, 0, 0],	
 	];
 	
-	let path = dibujarCircunferencia(30, lados);
+	let path = path_circle(30, lados);
 
-	let shape = dibujarCurvaCubica(puntos, 50);
+	let shape = shape_cubica(puntos, 20);
 	return generar_superficie_barrido(path, shape);
 }
 
@@ -86,20 +84,19 @@ function crear_torre_muralla(alto) {
 		[-.65*r, a, 0], [-.65*r, a, 0], [-.8*r, a, 0], [-.8*r, a+h*2, 0]
 	];
 
-	let c1 = dibujarRecta([-.8*r, a+h*2, 0], [-.8*r, a+h*2+h, 0], 2);
+	let c1 = shape_line([-.8*r, a+h*2, 0], [-.8*r, a+h*2+h, 0], 2);
 	
-	let c2 = dibujarRecta([-.8*r, a+h*2+h, 0], [-.7*r, a+h*2+h, 0], 2);
-	let c3 = dibujarRecta([-.7*r, a+h*2+h, 0], [-.7*r, a+h*2, 0], 2);
-	let c4 = dibujarRecta([-.7*r, a+h*2, 0], [0, a+h*2, 0], 2);
+	let c2 = shape_line([-.8*r, a+h*2+h, 0], [-.7*r, a+h*2+h, 0], 2);
+	let c3 = shape_line([-.7*r, a+h*2+h, 0], [-.7*r, a+h*2, 0], 2);
+	let c4 = shape_line([-.7*r, a+h*2, 0], [0, a+h*2, 0], 2);
 
-	let shape = dibujarCurvaCubica(puntos, 10);
+	let shape = shape_cubica(puntos, 10);
 	shape = concatenar(shape, c1);
 	shape = concatenar(shape, c2);
 	shape = concatenar(shape, c3);
 	shape = concatenar(shape, c4);
 
-
-	let path = dibujarCircunferencia(0.001, 10);
+	let path = path_circle(0.001, 10);
 
 	return generar_superficie_barrido(path, shape);
 
@@ -120,19 +117,19 @@ function crear_castillo(ancho, largo, pisos, altoMuralla, ladosMuralla) {
 	let geomTorre = crear_torre(pisos);
 	
 	let torre1 = new Objeto();
-	torre1.setGeometria(geomTorre.webgl_position_buffer, geomTorre.webgl_index_buffer, geomTorre.webgl_normal_buffer);
+	torre1.setGeometria(geomTorre.vertexBuffer, geomTorre.indexBuffer, geomTorre.normalBuffer);
 	torre1.setPosicion(0, 0, 0);
 
 	let torre2 = new Objeto();
-	torre2.setGeometria(geomTorre.webgl_position_buffer, geomTorre.webgl_index_buffer, geomTorre.webgl_normal_buffer);
+	torre2.setGeometria(geomTorre.vertexBuffer, geomTorre.indexBuffer, geomTorre.normalBuffer);
 	torre2.setPosicion(ancho, 0, 0);
 
 	let torre3 = new Objeto();
-	torre3.setGeometria(geomTorre.webgl_position_buffer, geomTorre.webgl_index_buffer, geomTorre.webgl_normal_buffer);
+	torre3.setGeometria(geomTorre.vertexBuffer, geomTorre.indexBuffer, geomTorre.normalBuffer);
 	torre3.setPosicion(ancho, 0, -largo);
 
 	let torre4 = new Objeto();
-	torre4.setGeometria(geomTorre.webgl_position_buffer, geomTorre.webgl_index_buffer, geomTorre.webgl_normal_buffer);
+	torre4.setGeometria(geomTorre.vertexBuffer, geomTorre.indexBuffer, geomTorre.normalBuffer);
 	torre4.setPosicion(0, 0, -largo);
 
 	edificio.agregarHijo(torre1);
@@ -144,19 +141,19 @@ function crear_castillo(ancho, largo, pisos, altoMuralla, ladosMuralla) {
 
 	let geomPunta = crear_punta();
 	let punta1 = new Objeto();
-	punta1.setGeometria(geomPunta.webgl_position_buffer, geomPunta.webgl_index_buffer, geomPunta.webgl_normal_buffer);
+	punta1.setGeometria(geomPunta.vertexBuffer, geomPunta.indexBuffer, geomPunta.normalBuffer);
 	punta1.setPosicion(0, (pisos - 1) * alto_piso + 2.9 + alto_piso/2, 0);
 
 	let punta2 = new Objeto();
-	punta2.setGeometria(geomPunta.webgl_position_buffer, geomPunta.webgl_index_buffer, geomPunta.webgl_normal_buffer);
+	punta2.setGeometria(geomPunta.vertexBuffer, geomPunta.indexBuffer, geomPunta.normalBuffer);
 	punta2.setPosicion(0, +(pisos - 1) * alto_piso +2.9 + alto_piso/2, 0);
 
 	let punta3 = new Objeto();
-	punta3.setGeometria(geomPunta.webgl_position_buffer, geomPunta.webgl_index_buffer, geomPunta.webgl_normal_buffer);
+	punta3.setGeometria(geomPunta.vertexBuffer, geomPunta.indexBuffer, geomPunta.normalBuffer);
 	punta3.setPosicion(0, +(pisos - 1) * alto_piso +2.9 + alto_piso/2, 0);
 
 	let punta4 = new Objeto();
-	punta4.setGeometria(geomPunta.webgl_position_buffer, geomPunta.webgl_index_buffer, geomPunta.webgl_normal_buffer);
+	punta4.setGeometria(geomPunta.vertexBuffer, geomPunta.indexBuffer, geomPunta.normalBuffer);
 	punta4.setPosicion(0, +(pisos - 1) * alto_piso +2.9 + alto_piso/2, 0);
 	
 	torre1.agregarHijo(punta1);
@@ -171,20 +168,20 @@ function crear_castillo(ancho, largo, pisos, altoMuralla, ladosMuralla) {
 	let geomPared2 = crear_pared(largo, pisos * alto_piso);
 
 	let paredSur = new Objeto();
-	paredSur.setGeometria(geomPared.webgl_position_buffer, geomPared.webgl_index_buffer, geomPared.webgl_normal_buffer);
+	paredSur.setGeometria(geomPared.vertexBuffer, geomPared.indexBuffer, geomPared.normalBuffer);
 
 	let paredEste = new Objeto();
-	paredEste.setGeometria(geomPared2.webgl_position_buffer, geomPared2.webgl_index_buffer, geomPared2.webgl_normal_buffer);
+	paredEste.setGeometria(geomPared2.vertexBuffer, geomPared2.indexBuffer, geomPared2.normalBuffer);
 	paredEste.setPosicion(ancho, 0, 0);
 	paredEste.setRotacion(0, 1, 0, Math.PI/2);
 
 	let paredNorte = new Objeto();
-	paredNorte.setGeometria(geomPared.webgl_position_buffer, geomPared.webgl_index_buffer, geomPared.webgl_normal_buffer);
+	paredNorte.setGeometria(geomPared.vertexBuffer, geomPared.indexBuffer, geomPared.normalBuffer);
 	paredNorte.setPosicion(ancho, 0, -largo);
 	paredNorte.setRotacion(0, 1, 0, Math.PI);
 
 	let paredOeste = new Objeto();
-	paredOeste.setGeometria(geomPared2.webgl_position_buffer, geomPared2.webgl_index_buffer, geomPared2.webgl_normal_buffer);
+	paredOeste.setGeometria(geomPared2.vertexBuffer, geomPared2.indexBuffer, geomPared2.normalBuffer);
 	paredOeste.setPosicion(0, 0, -largo);
 	paredOeste.setRotacion(0, 1, 0, -Math.PI/2);
 
@@ -202,28 +199,28 @@ function crear_castillo(ancho, largo, pisos, altoMuralla, ladosMuralla) {
 	for (let j = 0; j < pisos; j++) {
 		for (let i = 0; i < n_ventanas; i++) {
 			let v = new Objeto();
-			v.setGeometria(geomVentana.webgl_position_buffer, geomVentana.webgl_index_buffer, geomVentana.webgl_normal_buffer);
+			v.setGeometria(geomVentana.vertexBuffer, geomVentana.indexBuffer, geomVentana.normalBuffer);
 			v.setPosicion(i * deltaVentanas + 2, alto_piso * (j+.4), -.5);
 			paredSur.agregarHijo(v);
 		}
 
 		for (let i = 0; i < ancho / deltaVentanas; i++) {
 			let v = new Objeto();
-			v.setGeometria(geomVentana.webgl_position_buffer, geomVentana.webgl_index_buffer, geomVentana.webgl_normal_buffer);
+			v.setGeometria(geomVentana.vertexBuffer, geomVentana.indexBuffer, geomVentana.normalBuffer);
 			v.setPosicion(i * deltaVentanas + 2, alto_piso * (j+.4), -.5);
 			paredNorte.agregarHijo(v);
 		}
 
 		for (let i = 0; i < largo / deltaVentanas; i++) {
 			let v = new Objeto();
-			v.setGeometria(geomVentana.webgl_position_buffer, geomVentana.webgl_index_buffer, geomVentana.webgl_normal_buffer);
+			v.setGeometria(geomVentana.vertexBuffer, geomVentana.indexBuffer, geomVentana.normalBuffer);
 			v.setPosicion(i * deltaVentanas + 2, alto_piso * (j+.4), -.5);
 			paredEste.agregarHijo(v);
 		}
 
 		for (let i = 0; i < largo / deltaVentanas; i++) {
 			let v = new Objeto();
-			v.setGeometria(geomVentana.webgl_position_buffer, geomVentana.webgl_index_buffer, geomVentana.webgl_normal_buffer);
+			v.setGeometria(geomVentana.vertexBuffer, geomVentana.indexBuffer, geomVentana.normalBuffer);
 			v.setPosicion(i * deltaVentanas + 2, alto_piso * (j+.4), -.5);
 			paredOeste.agregarHijo(v);
 		}
@@ -234,7 +231,7 @@ function crear_castillo(ancho, largo, pisos, altoMuralla, ladosMuralla) {
 
 		for (let i = 1; i <= pisos; i++) {
 			let p = new Objeto();
-			p.setGeometria(geomPiso.webgl_position_buffer, geomPiso.webgl_index_buffer, geomPiso.webgl_normal_buffer);
+			p.setGeometria(geomPiso.vertexBuffer, geomPiso.indexBuffer, geomPiso.normalBuffer);
 			p.setPosicion(-.25, alto_piso*i, -largo-.25);
 			p.setRotacion(1, 0, 0, Math.PI/2);			
 			
@@ -244,17 +241,21 @@ function crear_castillo(ancho, largo, pisos, altoMuralla, ladosMuralla) {
 	// Muro
 	let muro =  new Objeto();
 	let geomMuro = crear_muro(altoMuralla, ladosMuralla);
-	muro.setGeometria(geomMuro.webgl_position_buffer, geomMuro.webgl_index_buffer, geomMuro.webgl_normal_buffer);
+	muro.setGeometria(geomMuro.vertexBuffer, geomMuro.indexBuffer, geomMuro.normalBuffer);
 	muralla.agregarHijo(muro);
 
 	// Torres muro
 	let geomTorreM = crear_torre_muralla(altoMuralla*1.5);
-	let puntosTorres = dibujarCircunferencia(27, ladosMuralla).puntos;
+	let puntosTorres = path_circle(27, ladosMuralla).matricesPuntos;
 
 	for (let i = 0; i < ladosMuralla; i++) {
 		let t = new Objeto();
-		t.setGeometria(geomTorreM.webgl_position_buffer, geomTorreM.webgl_index_buffer, geomTorreM.webgl_normal_buffer);
-		t.setPosicion(puntosTorres[i][0], 0, puntosTorres[i][2]);
+		t.setGeometria(geomTorreM.vertexBuffer, geomTorreM.indexBuffer, geomTorreM.normalBuffer);
+		
+		let p = vec3.create();
+		mat4.getTranslation(p, puntosTorres[i])
+		
+		t.setPosicion(p[0], 0, p[2]);
 		muro.agregarHijo(t);
 	}
 

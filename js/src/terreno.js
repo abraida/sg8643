@@ -4,7 +4,7 @@ function crear_isla() {
 	shape.puntos = [[0,0,0], [40, 0, 0], [40, -5, 0]]
 	shape.normales = [[0, 1, 0], [0, 1, 0], [1, 0, 0]];
 
-	path = dibujarCircunferencia(0.01, 10);
+	path = path_circle(0.01, 10);
 	
 	return  generar_superficie_barrido(path, shape);
 	
@@ -16,24 +16,24 @@ function crear_terreno() {
 	shape.puntos = [[-60,-5,0], [-60, 0,0], [-120, 0, 0], [0, -100, 0]];
 	shape.normales = [[1, 0, 0], [0, 1, 0], [0, 1, 0], [-1, 0, 0]];
 
-	path = dibujarCircunferencia(0.01, 10);
+	let path = path_circle(0.01, 10);
 
 	
 	let geomTer = generar_superficie_barrido(path, shape);
 	
 	let terreno = new Objeto();
-	terreno.setGeometria(geomTer.webgl_position_buffer, geomTer.webgl_index_buffer, geomTer.webgl_normal_buffer);
+	terreno.setGeometria(geomTer.vertexBuffer, geomTer.indexBuffer, geomTer.normalBuffer);
 	contenedor.agregarHijo(terreno);
 
 	let isla = new Objeto();
 	let geomIsla = crear_isla();
 
-	isla.setGeometria(geomIsla.webgl_position_buffer, geomIsla.webgl_index_buffer, geomIsla.webgl_normal_buffer);
+	isla.setGeometria(geomIsla.vertexBuffer, geomIsla.indexBuffer, geomIsla.normalBuffer);
 	contenedor.agregarHijo(isla);
 	
 	let plano = new Objeto();
 	let geomPlano = generar_plano(140, 140);
-	plano.setGeometria(geomPlano.webgl_position_buffer, geomPlano.webgl_index_buffer, geomPlano.webgl_normal_buffer);
+	plano.setGeometria(geomPlano.vertexBuffer, geomPlano.indexBuffer, geomPlano.normalBuffer);
 	plano.setRotacion(1, 0, 0, Math.PI/2);
 	plano.setPosicion(-70, -3, -70);
 	contenedor.agregarHijo(plano);	

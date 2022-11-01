@@ -22,6 +22,8 @@ class Objeto {
 	}
 
 	actualizarMatrizModelado() { 
+		this.matriz_modelado = mat4.create();
+
 		if(this.posicion)
 			mat4.translate(this.matriz_modelado, this.matriz_modelado, this.posicion);    
 		if (this.rotacion)
@@ -78,10 +80,6 @@ class Objeto {
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 			gl.drawElements( gl.TRIANGLES, this.indexBuffer.number_vertex_point, gl.UNSIGNED_SHORT, 0);
 		}
-		
-		this.posicion = vec3.fromValues(0, 0, 0);
-		this.rotacion = vec3.fromValues(0, 0, 0);
-		this.escala = vec3.fromValues(1, 1, 1);
 
 		for (let i = 0; i < this.hijos.length; i++) 
 			this.hijos[i].dibujar(m);

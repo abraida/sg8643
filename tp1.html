@@ -12,7 +12,7 @@
 
 		<div id="contenedor3d">
 			<center>    		            
-				<canvas id="canvas" width="1000" height="800">
+				<canvas id="canvas" width=1500 height=1000>
 					Your browser does not support the HTML5 canvas element.
 				</canvas>    		
 			</center>
@@ -22,7 +22,9 @@
         <script src="js/import/dat.gui.js"></script>
 		<script src="js/import/jquery-3.6.1.min.js"></script>
         
-        <script src="js/src/curvas.js"></script>
+        <script src="js/src/paths.js"></script>
+        <script src="js/src/shapes.js"></script>
+
         <script src="js/src/superficies.js"></script>
 		<script src="js/src/Objeto.js"></script>
 		<script src="js/src/castillo.js"></script>
@@ -69,7 +71,7 @@
             void main(void) {
                 vec3 lightVec=normalize(vec3(0.0,3.0,5.0));
                 vec3 diffColor=mix(vec3(0.4,0.4,0.4),vPosWorld,0.4);
-                vec3 color=dot(lightVec,vNormal)*diffColor+vec3(0.1,0.1,0.1);
+                vec3 color=dot(lightVec,vNormal)*diffColor+vec3(0.2,0.2,0.2);
 
                gl_FragColor = vec4(color,1.0);
             }

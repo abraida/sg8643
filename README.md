@@ -3,7 +3,7 @@
 Incompleto
 ## Por hacer
 
-*	Arreglar normales
-*	arreglar lanzamiento de catapulta
 *	Puerta
+*	Arreglar catapulta
+*	Permitir lanzamientos multiples
 *	Refactorizar y optimizaciones varias
