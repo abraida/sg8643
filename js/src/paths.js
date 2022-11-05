@@ -153,3 +153,40 @@ function path_line(segmentos, longitud) {
 
 	return curva;	
 }
+
+function path_3Dline(p0, p1, segs) {
+	let curva = new Object();
+  	curva.matricesPuntos = [];
+  	curva.matricesNormales = [];
+
+	let deltaU = 1/segs;
+
+	for (let u = 0; u <= segs; u++) {
+		let x = p0[0] + u*deltaU*(p1[0] - p0[0]);
+		let y = p0[1] + u*deltaU*(p1[1] - p0[1]);
+		let z = p0[2] + u*deltaU*(p1[2] - p0[2]);
+
+		let punto = [x, y, z];
+
+		x = p1[0] - p0[0];
+		y = p1[1] - p0[1];
+		z = p1[2] - p0[2];
+
+		let tan = vec3.fromValues(x, y, z);
+		vec3.normalize(tan, tan);
+		let nrm = vec3.fromValues(0, 1, 0);
+
+		let bin = vec3.create();
+		vec3.cross(bin, tan, nrm);
+
+		let m1 = mat4.create();
+		mat4.fromTranslation(m1, punto);
+		let m2 = make_basis(bin, nrm, tan);
+		mat4.multiply(m1, m1, m2);
+
+		curva.matricesPuntos.push(m1);
+		curva.matricesNormales.push(m2);
+	}
+
+	return curva;	
+}

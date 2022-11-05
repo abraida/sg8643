@@ -10,9 +10,9 @@ function shape_cubica(puntosDeControl, segmentos) {
     for (let i = 0; i < n; i++) {
         let puntos = puntosDeControl.slice(4*i);
         
-        for (let u = 0; u <= 1.001; u = u + deltaU) {      
-            shape.puntos.push(curvaCubica(u, puntos));
-            let tangente = curvaCubicaDerivadaPrimera(u, puntos);
+        for (let u = 0; u <= segmentos; u++) {      
+            shape.puntos.push(curvaCubica(u*deltaU, puntos));
+            let tangente = curvaCubicaDerivadaPrimera(u*deltaU, puntos);
         
 			let mod = Math.sqrt(tangente[1]*tangente[1] + tangente[0]*tangente[0]);
 
@@ -30,9 +30,9 @@ function shape_line(p0, p1, segmentos) {
 
 	let deltaU = 1/segmentos;
 
-	for (let u = 0; u <= 1.001; u = u + deltaU) {
-		let x = p0[0] + u*(p1[0] - p0[0]);
-		let y = p0[1] + u*(p1[1] - p0[1]);
+	for (let u = 0; u <= segmentos; u++) {
+		let x = p0[0] + u*deltaU*(p1[0] - p0[0]);
+		let y = p0[1] + u*deltaU*(p1[1] - p0[1]);
 
 		shape.puntos.push([x, y, 0]);
 
@@ -49,15 +49,7 @@ function shape_line(p0, p1, segmentos) {
 
 function concatenar(c1, c2) {
  	let shape = new Object();
-	let lastIndex = c1.puntos.length-1;
-		
-	let x = c2.puntos[0][0] - c1.puntos[lastIndex][0];
-	let y = c2.puntos[0][1] - c1.puntos[lastIndex][1]; 
 
-	let mod = Math.sqrt(x*x + y*y);
-	c1.puntos.push(c1.puntos[lastIndex]);
-	c1.normales.push([y/mod, -x/mod, 0]);	
-	
 	shape.puntos = c1.puntos.concat(c2.puntos);
 	shape.normales = c1.normales.concat(c2.normales);
 

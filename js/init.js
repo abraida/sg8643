@@ -109,10 +109,10 @@ function setupVertexShaderMatrix() {
 }
 
 function setupCameras() {
-	orbital_castillo = new Camara(0, 0, 0, 10);
+	mOrbCastillo = new Camara(0, 0, 0, 10);
 
-	orbital_catapulta = new Camara(-5, 0, -5, 2);
-	primera_persona = new CamaraFP(-8, .6, -8, 1);
+	mOrbCat = new Camara(-5, 0, -5, 2);
+	mFP = new CamaraFP(-8, .6, -8, 1);
 
-	camara = orbital_castillo;
+	mCamara = mOrbCastillo;
 }

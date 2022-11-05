@@ -28,34 +28,34 @@ var renderizar = function() {
 }
 
 $("canvas").mousemove(function (e) {	
-	if(!camara)
+	if(!mCamara)
 		return;
 
-	camara.movimientoMouse(e.clientX || e.pageX, e.clientY || e.pageY);
+	mCamara.movimientoMouse(e.clientX || e.pageX, e.clientY || e.pageY);
 });
 
 
 
-$('canvas').mousedown(function (event) {
-	if(!camara)
+$('canvas').mousedown(function (e) {
+	if(!mCamara)
 		return;
 		
-	camara.mouseDown();
+	mCamara.mouseDown(e.clientX || e.pageX, e.clientY || e.pageY);
 
 });
 
 $('canvas').mouseup(function (event) {
-	if(!camara)
+	if(!mCamara)
 		return;
 		
-	camara.mouseUp();
+	mCamara.mouseUp();
 });
 
 function zoom(event) {
 	if (event.deltaY < 0) {					
-		camara.disminuirZoom(event.deltaY * -0.001);
+		mCamara.disminuirZoom(event.deltaY * -0.001);
 	} else {
-		camara.aumentarZoom(event.deltaY * 0.001);				
+		mCamara.aumentarZoom(event.deltaY * 0.001);				
 	}
 }
 
@@ -65,47 +65,47 @@ document.addEventListener('keydown', (event) => {
 	const keyName = event.key;
       	switch(event.key){
 		case "a":
-			camara.mover(1, 0);
+			mCamara.mover(1, 0);
 
 		break;
 		case "d":
-			camara.mover(-1, 0);
+			mCamara.mover(-1, 0);
 		break;
 
 
 		case "w":
-			camara.mover(0, 1);
+			mCamara.mover(0, 1);
 		break;  
 		case "s":
-			camara.mover(0, -1);
+			mCamara.mover(0, -1);
 		break;
 
 		case "q":
-                	camara.rotarEje(0.1);
+                	mCamara.rotarEje(0.1);
 
 		break; 
 		case "e":
-                	camara.rotarEje(-0.1);
+                	mCamara.rotarEje(-0.1);
 		break;        
 		
 		case '1':
-			camara = orbital_castillo;
+			mCamara = mOrbCastillo;
 			setChecked('a');
-			camara.rotar();
+			mCamara.rotar();
 		break;
 
 		case '2':
-			camara = orbital_catapulta;
+			mCamara = mOrbCat;
 			setChecked('b');
-			camara.rotar();
+			mCamara.rotar();
 
 		break;
 
 		case '3':
-			camara = primera_persona;
+			mCamara = mFP;
 			setChecked('c');
 
-			camara.rotar();
+			mCamara.rotar();
 		break;
 
 
@@ -146,15 +146,15 @@ function initMenu() {
 	var cam = gui.addFolder("Camara");
 	cam.add(parameters, 'a').name('Castillo').listen().onChange(function(){
 		setChecked("a");
-		cam = orbital_castillo;
+		mCamara = mOrbCastillo;
 	});
 	cam.add(parameters, 'b').name('Catapulta').listen().onChange(function(){
 		setChecked("b");
-		camara = orbital_catapulta;
+		mCamara = mOrbCat;
 	});
 	cam.add(parameters, 'c').name('Primera Persona').listen().onChange(function(){
 		setChecked("c");
-		camara = primera_persona;
+		mCamara = mFP;
 
 	});
 
