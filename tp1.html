@@ -73,7 +73,7 @@
                 vec3 diffColor=mix(vec3(0.4,0.4,0.4),vPosWorld,0.4);
                 vec3 color=dot(lightVec,vNormal)*diffColor+vec3(0.2,0.2,0.2);
 
-               gl_FragColor = vec4(color,1.0);
+               gl_FragColor = vec4(vNormal,1.0);
             }
         </script>
         

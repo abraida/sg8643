@@ -1,6 +1,6 @@
 var anchoEdificio = 15;
 var largoEdificio = 15;
-var altoMuralla = 10;
+var altoMuralla = 8;
 var pisosEdificio = 4;
 var ladosMuralla = 8;
 
@@ -129,7 +129,7 @@ function initMenu() {
 	var edificio = gui.addFolder('Castillo');
 	edificio.add(window, "anchoEdificio", 10, 20).step(0.5);
 	edificio.add(window, "largoEdificio", 10, 20).step(0.5);
-	edificio.add(window, "pisosEdificio");
+	edificio.add(window, "pisosEdificio").step(1);
 	edificio.add(window, "altoMuralla", 5, 15).step(0.5);
 	edificio.add(window, "ladosMuralla", 4, 8).step(1);
 	edificio.add(window, "renderizar");
