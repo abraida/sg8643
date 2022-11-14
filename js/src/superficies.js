@@ -144,58 +144,40 @@ function generar_superficie_barrido(curva, figura, dibujarTapa = false) {
 	}
 			
 	for (let i = 0; i < segLongitud - 1; i++) {
-        for (let j = 0; j < segRadiales - 1; j++) {
-          	indices.push(i * segRadiales + j);
-          	indices.push((i + 1) * segRadiales + j);
-          	indices.push(i * segRadiales + j + 1);
+		for (let j = 0; j < segRadiales - 1; j++) {
+			indices.push(i * segRadiales + j);
+			indices.push((i + 1) * segRadiales + j);
+			indices.push(i * segRadiales + j + 1);
 
 			indices.push(i * segRadiales + j + 1);
 			indices.push((i + 1) * segRadiales + j);
 			indices.push((i + 1) * segRadiales + j + 1);
-        }
-    }
+		}
+    	}
 	
 	if(dibujarTapa){
 		for (var j=0;j<segRadiales;j++){
-			var x1=figura.puntos[j][0];
-			var y1=figura.puntos[j][1];	
+			let p = vec3.fromValues(0, 0, 0)
+			vec3.transformMat4(p, p, curva.matricesPuntos[segLongitud-1]);
 
-			var x2=0;
-			var y2=0;		
-			
-			let ext = vec4.fromValues(x1, y1, 0, 1);
-			mat4.multiply(ext, curva.matricesPuntos[segLongitud-1], ext);
-
-			let int = vec4.fromValues(x2, y2, 0, 1)
-			mat4.multiply(int, curva.matricesPuntos[segLongitud-1], int);
-
-			var nExt = vec4.fromValues(0, 0, 1, 1);
-			mat4.multiply(nExt, curva.matricesNormales[segLongitud-1], nExt);
-
-			var nInt = vec4.fromValues(0, 0, 1, 1);
-			mat4.multiply(nInt, curva.matricesNormales[segLongitud-1], nInt);		
+			var n = vec3.fromValues(0, 0, 1);
+			vec3.transformMat4(n, n, curva.matricesNormales[segLongitud-1]);		
+			vec3.normalize(n, n);
 				
-			pos.push(ext[0]);
-			pos.push(ext[1]);
-			pos.push(ext[2]);
 
-			pos.push(int[0]);
-			pos.push(int[1]);
-			pos.push(int[2]);
-			
-			nrm.push(nExt[0]);
-			nrm.push(nExt[1]);
-			nrm.push(nExt[2]);
-			
-			nrm.push(nInt[0]);
-			nrm.push(nInt[1]);
-			nrm.push(nInt[2]);					
+			pos.push(p[0]);
+			pos.push(p[1]);
+			pos.push(p[2]);
+
+			nrm.push(n[0]);
+			nrm.push(n[1]);
+			nrm.push(n[2]);					
 		}
 
 		for (let j = 0; j < segRadiales - 1; j++) {
-          	indices.push((segLongitud-1)* segRadiales + j);
-          	indices.push((segLongitud-1+ 1) * segRadiales + j);
-          	indices.push((segLongitud-1)* segRadiales + j + 1);
+			indices.push((segLongitud-1)* segRadiales + j);
+			indices.push((segLongitud-1+ 1) * segRadiales + j);
+			indices.push((segLongitud-1)* segRadiales + j + 1);
 
 			indices.push((segLongitud-1)* segRadiales + j + 1);
 			indices.push((segLongitud-1+ 1) * segRadiales + j);
@@ -256,58 +238,39 @@ function generar_superficie_barrido_variable(curva, figuras, dibujarTapa = false
 	}
 			
 	for (let i = 0; i < segLongitud - 1; i++) {
-        for (let j = 0; j < segRadiales - 1; j++) {
-          	indices.push(i * segRadiales + j);
-          	indices.push((i + 1) * segRadiales + j);
-          	indices.push(i * segRadiales + j + 1);
+        	for (let j = 0; j < segRadiales - 1; j++) {
+          		indices.push(i * segRadiales + j);
+          		indices.push((i + 1) * segRadiales + j);
+          		indices.push(i * segRadiales + j + 1);
 
 			indices.push(i * segRadiales + j + 1);
 			indices.push((i + 1) * segRadiales + j);
 			indices.push((i + 1) * segRadiales + j + 1);
-        }
-    }
+        	}
+   	 }
 	
 	if(dibujarTapa){
 		for (var j=0;j<segRadiales;j++){
-			var x1=figuras[segLongitud - 1].puntos[j][0];
-			var y1=figuras[segLongitud - 1].puntos[j][1];	
+			let int = vec3.fromValues(0, 0, 0)
+			vec3.transformMat4(int, int, curva.matricesPuntos[segLongitud-1]);
 
-			var x2=0;
-			var y2=0;		
-			
-			let ext = vec4.fromValues(x1, y1, 0, 1);
-			mat4.multiply(ext, curva.matricesPuntos[segLongitud-1], ext);
-
-			let int = vec4.fromValues(x2, y2, 0, 1)
-			mat4.multiply(int, curva.matricesPuntos[segLongitud-1], int);
-
-			var nExt = vec4.fromValues(0, 0, 1, 1);
-			mat4.multiply(nExt, curva.matricesNormales[segLongitud-1], nExt);
-
-			var nInt = vec4.fromValues(0, 0, 1, 1);
-			mat4.multiply(nInt, curva.matricesNormales[segLongitud-1], nInt);		
+			var n = vec3.fromValues(0, 0, 1);
+			vec3.transformMat4(n, n, curva.matricesNormales[segLongitud-1]);		
+			vec3.normalize(n, n);
 				
-			pos.push(ext[0]);
-			pos.push(ext[1]);
-			pos.push(ext[2]);
-
 			pos.push(int[0]);
 			pos.push(int[1]);
 			pos.push(int[2]);
-			
-			nrm.push(nExt[0]);
-			nrm.push(nExt[1]);
-			nrm.push(nExt[2]);
-			
-			nrm.push(nInt[0]);
-			nrm.push(nInt[1]);
-			nrm.push(nInt[2]);					
+
+			nrm.push(n[0]);
+			nrm.push(n[1]);
+			nrm.push(n[2]);					
 		}
 
 		for (let j = 0; j < segRadiales - 1; j++) {
-          	indices.push((segLongitud-1)* segRadiales + j);
-          	indices.push((segLongitud-1+ 1) * segRadiales + j);
-          	indices.push((segLongitud-1)* segRadiales + j + 1);
+			indices.push((segLongitud-1)* segRadiales + j);
+			indices.push((segLongitud-1+ 1) * segRadiales + j);
+			indices.push((segLongitud-1)* segRadiales + j + 1);
 
 			indices.push((segLongitud-1)* segRadiales + j + 1);
 			indices.push((segLongitud-1+ 1) * segRadiales + j);
