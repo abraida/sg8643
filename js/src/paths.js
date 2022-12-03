@@ -133,7 +133,7 @@ function path_line(segmentos, longitud) {
 
 	let deltaU = 1*longitud/segmentos;
 
-	for (let u = 0; u < segmentos; u++) {
+	for (let u = 0; u <= segmentos; u++) {
 		let punto = vec3.fromValues(0, 0, u * deltaU);
 
 		let tan = vec3.fromValues(0, 0, -1);

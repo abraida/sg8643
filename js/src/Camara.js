@@ -32,7 +32,6 @@ class Camara{
 
 			if (this.beta<0.001) this.beta=0.001;
 			if (this.beta>Math.PI/2-.1) this.beta=Math.PI/2-.1;
-            console.log(this.beta);
 
 			this.pos = [this.radio * this.zoom * Math.sin(this.alfa) * Math.sin(this.beta), this.radio * this.zoom * Math.cos(this.beta) ,this.radio * this.zoom * Math.cos(this.alfa) * Math.sin(this.beta)];
 
