@@ -98,7 +98,13 @@ function makeShader(src, type) {
 	return shader;
 }
 
-function setupVertexShaderMatrix() {
+function setupVertexShaderMatrix(munPos) {
+	var munCol = catColor; 
+	if (!munPos){
+		munPos = [0, 0, 0];
+		munCol = [0, 0, 0];
+	}
+	
 	var modelMatrixUniform = gl.getUniformLocation(glProgram, "modelMatrix");
 	var viewMatrixUniform = gl.getUniformLocation(glProgram, "viewMatrix");
 	var projMatrixUniform = gl.getUniformLocation(glProgram, "projMatrix");
@@ -119,13 +125,13 @@ function setupVertexShaderMatrix() {
 	gl.uniform3f(ambientColorUniform, ambColor[0], ambColor[1], ambColor[2]);
 
 	var colors = []
-	colors = colors.concat(diffColor, antColor1, antColor2, catColor);
+	colors = colors.concat(diffColor, antColor1, antColor2, munCol);
 	
 	var pos = []
-	pos = pos.concat([1.0, 1.0, 0.8], [10.0, 10.0, 10.0], [20.0, 20.0, 20.0], [30.0, 30.0, 30.0]);
+	pos = pos.concat([0.9, 1.0, 0.9], [5.0, 2.0, 5.0], [20.0, 20.0, 20.0], munPos[0], munPos[1], munPos[2]);
 	
 	var coeff = []
-	coeff = coeff.concat([0.0, 0.0, 0.0], [1.0, 0.35, 0.88], [1.0, 0.35, 0.88],  [1.0, 0.35, 0.88])
+	coeff = coeff.concat([0.0, 0.0, 0.0], [1.0, 0.14, 0.07], [1.0, 0.35, 0.88],  [.1, 0.8, 0.1])
 
 	var isDirectional = [1, 0, 0, 0];
 

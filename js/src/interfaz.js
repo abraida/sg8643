@@ -20,12 +20,12 @@ parameters = {
 }
 
 lights = {
-	amb: "#0e0e1f",
-	diff: "#7b7bb2",
+	amb: "#242437",
+	diff: "#dcdcdc",
 	spec: "#000000",
-	ant1: "#000000",
+	ant1: "#ffffff",
 	ant2: "#000000",
-	cat: "#000000",
+	cat: "#ffbc7e",
 }
 
 var ambColor = hexToRgb(lights.amb);

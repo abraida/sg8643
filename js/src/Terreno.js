@@ -13,10 +13,12 @@ class Terreno extends Objeto {
 		shape.normales = [[0, 1, 0], [0, 1, 0], [1, 0, 0]];
 		let path = path_circle(0.01, 10);
 		
-		let geom = generar_superficie_barrido(path, shape);
+		let geom = generar_superficie_barrido(path, shape, false, 1, 3);
 
-		isla.setColor(35, 153, 55);
+
 		isla.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		isla.crearTextura("res/ground.png", "uZincTex");
+
 		isla.setTextureBuffer(geom.uvBuffer);
 		this.agregarHijo(isla);
 		
@@ -28,9 +30,10 @@ class Terreno extends Objeto {
 
 		path = path_circle(0.01, 10);
 
-		geom = generar_superficie_barrido(path, shape);
+		geom = generar_superficie_barrido(path, shape, false, 6, 10);
 
-		tierra.setColor(35, 153, 55);
+		tierra.crearTextura("res/ground.png", "uZincTex");
+
 		tierra.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
 		tierra.setTextureBuffer(geom.uvBuffer);
 

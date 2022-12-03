@@ -124,7 +124,8 @@ class Catapulta extends Objeto {
 		
 		let cilindro = new Objeto();
 		cilindro.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
-
+		cilindro.setTextureBuffer(geom.uvBuffer);
+		cilindro.setColor(43, 28, 11);
 		cilindro.setEscala(1, largo, 1);
 
 		return cilindro;	
@@ -142,6 +143,9 @@ class Catapulta extends Objeto {
 		
 		let cuad = new Objeto();
 		cuad.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		cuad.setTextureBuffer(geom.uvBuffer);
+		cuad.setColor(43, 28, 11);
+
 
 		cuad.setEscala(ancho, alto, largo);
 
@@ -152,6 +156,8 @@ class Catapulta extends Objeto {
 		let geom = generar_esfera();
 		let e = new Objeto();
 		e.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		e.setColor(50, 50, 50);
+		e.setTextureBuffer(geom.uvBuffer)
 		e.setEscala(radio, radio, radio);
 		return e;
 	}
@@ -173,7 +179,8 @@ class Catapulta extends Objeto {
 		
 		let cuad = new Objeto();
 		cuad.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
-
+		cuad.setTextureBuffer(geom.uvBuffer);
+		cuad.setColor(43, 28, 11);
 		cuad.setEscala(ancho, alto, largo);
 
 		return cuad;	
@@ -189,6 +196,8 @@ class Catapulta extends Objeto {
 		
 		let d = new Objeto();
 		let geom = generar_esfera();
+		d.setColor(50, 50, 50);
+		d.setTextureBuffer(geom.uvBuffer)
 		d.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
 		return d;
 	}

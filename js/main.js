@@ -38,39 +38,53 @@ function disparar_catapulta() {
 		anteriorDis = anterior;
 		actualDis = actual;
 		velDis = vec3.sub(velDis, actual, anterior);
-
+		
 		lanzar_municion();
 		restaurar_catapulta();
 	} else{	
-		disparo = null;	
 		requestAnimationFrame(disparar_catapulta);
 
+		if(disparo){
+			disparo = null;
+			mCatapulta.restaurar_municion();
+
+			return;
+		}
+		
 		mCatapulta.disparar(rotacionBrazo);
 		rotacionBrazo += rotacionV;
 		
-		draw_scene();		
 		
 		anterior = actual;
 		actual = mCatapulta.get_municion_pos();
+		
+		setupVertexShaderMatrix(actual);
+		
+		draw_scene();		
 	}
 	
 }
 
 function restaurar_catapulta() {
-	if (rotacionBrazo < 0) {
-		mCatapulta.restaurar_municion();
-		CATAPULTA_DISPONIBLE = true;
-	} else {
+	if (rotacionBrazo > 0) 
 		requestAnimationFrame(restaurar_catapulta);
+	else
+		CATAPULTA_DISPONIBLE = true;
 		
-	}
-	
-	mCatapulta.disparar(rotacionBrazo);
 	rotacionBrazo -= rotacionV/2;
-
+	mCatapulta.disparar(rotacionBrazo);
 }
 
 function lanzar_municion() {
+	if(disparo == null)
+		return;
+	if(actualDis[1] <= 0){
+		disparo = null;
+		mCatapulta.restaurar_municion();
+
+		return;
+	}
+
 	requestAnimationFrame(lanzar_municion);
 	anteriorDis = actualDis;
 	actualDis = [anteriorDis[0] + velDis[0],anteriorDis[1] + velDis[1],anteriorDis[2] +  velDis[2]];
@@ -109,8 +123,6 @@ function draw_scene() {
 	vec3.fromValues(0, 1, 0)
 	);
 	
-	setupVertexShaderMatrix();
-
 	let m = mat4.create;
 	mat4.identity(m, m);
 	
@@ -120,7 +132,14 @@ function draw_scene() {
 	
 	mFP.center.setProgram(glProgram);
 	mFP.center.dibujar(m);
-
+	
+	var munPos = mCatapulta.get_municion_pos();
+	if(disparo != null && actualDis != null){
+		munPos =  actualDis;
+	}
+	
+	setupVertexShaderMatrix(munPos);
+	
 	if(DIBUJAR_CASTILLO)
 		mCastillo.dibujar(m);
 	if(DIBUJAR_CATAPULTA)
@@ -128,8 +147,10 @@ function draw_scene() {
 	if (DIBUJAR_TERRENO)
 		mTerreno.dibujar(m);
 
-	if(disparo != null)
+	if(disparo != null && actualDis != null){
 		disparo.dibujar(m);
+	}
+
 }
 
 

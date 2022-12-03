@@ -4,6 +4,8 @@ let vec4 = glMatrix.vec4;
 function generar_esfera() {
 	var pos=[];
 	var normal=[];
+	var uv=[];
+
 	var r=1;
 	var longitudeBands=128;
 	var latitudeBands=256;
@@ -33,6 +35,9 @@ function generar_esfera() {
             pos.push(x);
             pos.push(y);
             pos.push(z);
+
+	    uv.push(u);
+	    uv.push(v);
         }
     }
 
@@ -69,11 +74,16 @@ function generar_esfera() {
 	indexBuffer.number_vertex_point = index.length;
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(index), gl.STATIC_DRAW);    
- 
+
+	var uvBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uv), gl.STATIC_DRAW);
+
     return {
         vertexBuffer,
         normalBuffer,
-        indexBuffer
+        indexBuffer,
+	uvBuffer
     }	
 }
 
@@ -144,6 +154,8 @@ function generar_superficie_barrido(curva, figura, dibujarTapa = false,
 	var segLongitud = curva.matricesPuntos.length;
 	var segRadiales = figura.puntos.length;
 
+	var totalLength = getShapeLenght(figura);
+	var acumLength = 0;				
 
 	for (let i = 0; i < segLongitud; i++) {
 		for (let j = 0; j < segRadiales; j++) {				
@@ -162,13 +174,17 @@ function generar_superficie_barrido(curva, figura, dibujarTapa = false,
 			nrm.push(n[0]);
 			nrm.push(n[1]);
 			nrm.push(n[2]);
+			
+			if(j>0)
+				acumLength += vec3.dist(figura.puntos[j], figura.puntos[j-1])
 
-			let cU = -repeatV*(j/(figura.puntos.length-1))
-			let cV = repeatU*(i/curva.matricesPuntos.length)
+			let cU = repeatU*(acumLength/(totalLength))
+			let cV = repeatV*(i/curva.matricesPuntos.length)
 
 			uv.push(cU);
 			uv.push(cV);
 		}
+		acumLength = 0;
 	}
 			
 	for (let i = 0; i < segLongitud - 1; i++) {
@@ -351,4 +367,14 @@ function generar_superficie_barrido_variable(curva, figuras,
         indexBuffer,
 	uvBuffer
     }
+}
+
+
+function getShapeLenght(shape){
+	let l = 0;
+	for (let i = 1; i < shape.puntos.length; i++) {
+		l += vec3.dist(shape.puntos[i], shape.puntos[i-1]);
+	}
+
+	return l;
 }
