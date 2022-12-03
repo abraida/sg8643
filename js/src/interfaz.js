@@ -19,6 +19,25 @@ parameters = {
   c: false
 }
 
+lights = {
+	amb: "#0e0e1f",
+	diff: "#7b7bb2",
+	spec: "#000000",
+	ant1: "#000000",
+	ant2: "#000000",
+	cat: "#000000",
+}
+
+var ambColor = hexToRgb(lights.amb);
+var diffColor = hexToRgb(lights.diff);
+var specColor = hexToRgb(lights.spec);
+var antColor1 = hexToRgb(lights.ant1);
+var antColor2 = hexToRgb(lights.ant2);
+var catColor = hexToRgb(lights.cat);
+
+
+
+
 var disparar = function() {
 	disparar_catapulta();
 }
@@ -158,4 +177,34 @@ function initMenu() {
 
 	});
 
+	var fLight = gui.addFolder("Luces");
+	fLight.addColor(lights, "amb").onChange(function() {
+		ambColor = hexToRgb(lights.amb);
+	});
+
+	fLight.addColor(lights, "diff").onChange(function() {
+		diffColor = hexToRgb(lights.diff);
+	});
+	fLight.addColor(lights, "spec").onChange(function() {
+		specColor = hexToRgb(lights.spec);
+	});
+	fLight.addColor(lights, "ant1").onChange(function() {
+		antColor1 = hexToRgb(lights.ant1);
+	});
+	fLight.addColor(lights, "ant2").onChange(function() {
+		antColor2 = hexToRgb(lights.ant2);
+	});
+	fLight.addColor(lights, "cat").onChange(function() {
+		catColor = hexToRgb(lights.cat);
+	});
+
+}
+
+function hexToRgb(hex) {
+	var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+	return result ? {
+		r: parseInt(result[1], 16)/255,
+		g: parseInt(result[2], 16)/255,
+		b: parseInt(result[3], 16)/255
+	} : null;
 }

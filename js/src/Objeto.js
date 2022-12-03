@@ -7,6 +7,7 @@ class Objeto {
 		this.indexBuffer = null;
 		this.normalBuffer = null;
 
+		this.textureBuffer = null;
 
 		this.matriz_modelado = mat4.create();
 		this.matriz_normales = mat4.create();
@@ -15,10 +16,45 @@ class Objeto {
 		this.rotacion = vec3.fromValues(0, 0, 0);
 		this.escala = vec3.fromValues(1, 1, 1);
 		this.alpha = 0;
+
+
+		this.texture = null;
+		this.texName = null;
+		this.color = [.3, .3, .3];
 		
 		this.hijos = [];
 
 		this.wpos = vec3.fromValues(0, 0, 0);
+	}
+
+	setColor(r, g, b){
+		this.color = [r/255, g/255, b/255];
+	}
+
+	setTextureBuffer(buffer) {
+		this.textureBuffer = buffer;
+	}
+
+	crearTextura(src, name) {
+		let t = gl.createTexture();
+		t.image = new Image();
+		t.image.src = src;
+
+		t.image.onload = function () {
+			gl.bindTexture(gl.TEXTURE_2D, t);
+			gl.texParameterf(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.MIRRORED_REPEAT); 
+			gl.texParameterf(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.MIRRORED_REPEAT);
+			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, t.image);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
+			gl.generateMipmap(gl.TEXTURE_2D);
+
+			gl.bindTexture(gl.TEXTURE_2D, null);
+		}
+
+		this.texture = t;
+		this.texName = name;
 	}
 
 	actualizarMatrizModelado() { 
@@ -63,6 +99,37 @@ class Objeto {
 	
 		gl.uniformMatrix4fv(normalMatrixUniform, false, this.matriz_normales);
 
+		if(!this.textureBuffer) {
+			var uTextBool = gl.getUniformLocation(this.Program, "usarTextura");
+
+            		gl.uniform1i(uTextBool, false);
+
+			colorAttribute = gl.getUniformLocation(this.Program, "aColor");
+			gl.uniform3f(colorAttribute, this.color[0],this.color[1],this.color[2]);			
+		}
+
+		if (this.textureBuffer) {
+			var uTextBool = gl.getUniformLocation(this.Program, "usarTextura");
+            		gl.uniform1i(uTextBool, true);
+
+			vertexTextureAttribute = gl.getAttribLocation(this.Program, "aTextureCoord");
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
+			
+			gl.vertexAttribPointer(vertexTextureAttribute, 2, gl.FLOAT, false, 0, 0);
+			
+			gl.enableVertexAttribArray(vertexTextureAttribute);
+			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+
+			gl.activeTexture(gl.TEXTURE0);
+			gl.bindTexture(gl.TEXTURE_2D, this.texture);
+
+			var uSampler = gl.getUniformLocation(this.Program, this.texName);
+
+			gl.uniform1i(uSampler, 0);
+
+
+		}
+
 		if (this.vertexBuffer && this.indexBuffer && this.normalBuffer){
 
 			vertexPositionAttribute = gl.getAttribLocation(this.Program, "aVertexPosition");
@@ -83,6 +150,7 @@ class Objeto {
 
 		for (let i = 0; i < this.hijos.length; i++) 
 			this.hijos[i].dibujar(m);
+
 	};
 
 	setGeometria(vertexBuffer, indexBuffer, normalBuffer) {
@@ -121,3 +189,7 @@ class Objeto {
 	};
 
 } 
+
+function isPowerOf2(value) {
+  return (value & (value - 1)) === 0;
+}

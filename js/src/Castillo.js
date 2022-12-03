@@ -81,6 +81,7 @@ class Castillo extends Objeto{
 		// Paredes
 
 		let paredSur = this.#crear_pared(ancho);
+
 		this.edificio.agregarHijo(paredSur);
 
 		let paredEste = this.#crear_pared(largo);
@@ -196,7 +197,9 @@ class Castillo extends Objeto{
 		
 		let t = new Objeto();
 		t.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
-		
+		t.crearTextura("../../res/castle.png", "uZincTex");
+		t.setTextureBuffer(geom.uvBuffer);
+
 		return t;
 	}
 
@@ -214,6 +217,7 @@ class Castillo extends Objeto{
 		let geom = generar_superficie_barrido(path, shape);	
 		let p = new Objeto();
 		p.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		
 
 		return p;
 	}
@@ -222,6 +226,8 @@ class Castillo extends Objeto{
 		let p = new Objeto();
 		let geom = generar_plano(w, this.config.altoPiso * this.config.pisos); 
 		p.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		p.crearTextura("../../res/castle.png", "uZincTex");
+		p.setTextureBuffer(geom.uvBuffer);
 		return p;
 	}
 	#crear_ventana() {
@@ -271,8 +277,11 @@ class Castillo extends Objeto{
 		path.matricesPuntos.pop();
 
 		let m = new Objeto()
-		let geom = generar_superficie_barrido(path, shape);
+		let geom = generar_superficie_barrido(path, shape, false, 30, 60);
 		m.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		m.crearTextura("../../res/wall.png", "uZincTex");
+		m.setTextureBuffer(geom.uvBuffer);
+
 		return m;			
 	}
 	

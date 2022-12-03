@@ -115,13 +115,19 @@ function generar_plano(ancho, alto) {
 
 }
 
-function generar_superficie_barrido(curva, figura, dibujarTapa = false) {
+function generar_superficie_barrido(curva, figura, dibujarTapa = false, 
+				repeatU, repeatV) {
+	if (!repeatU) repeatU=1;
+	if (!repeatV) repeatV=1;
+		
 	let indices = [];
 	let pos = [];
 	let nrm = [];
+	let uv = [];
 
 	var segLongitud = curva.matricesPuntos.length;
 	var segRadiales = figura.puntos.length;
+
 
 	for (let i = 0; i < segLongitud; i++) {
 		for (let j = 0; j < segRadiales; j++) {				
@@ -140,6 +146,12 @@ function generar_superficie_barrido(curva, figura, dibujarTapa = false) {
 			nrm.push(n[0]);
 			nrm.push(n[1]);
 			nrm.push(n[2]);
+
+			let cU = -repeatV*(j/(figura.puntos.length-1))
+			let cV = repeatU*(i/curva.matricesPuntos.length)
+
+			uv.push(cU);
+			uv.push(cV);
 		}
 	}
 			
@@ -155,7 +167,7 @@ function generar_superficie_barrido(curva, figura, dibujarTapa = false) {
 		}
     	}
 	
-	if(dibujarTapa){
+	if(false){
 		for (var j=0;j<segRadiales;j++){
 			let p = vec3.fromValues(0, 0, 0)
 			vec3.transformMat4(p, p, curva.matricesPuntos[segLongitud-1]);
@@ -202,20 +214,35 @@ function generar_superficie_barrido(curva, figura, dibujarTapa = false) {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 
+    var uvBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uv), gl.STATIC_DRAW);
+    uvBuffer.itemSize = 2;
+    uvBuffer.numItems = uv.length / 2;
+
     return {
         vertexBuffer,
         normalBuffer,
-        indexBuffer
+        indexBuffer,
+	uvBuffer
     }
 }
 
-function generar_superficie_barrido_variable(curva, figuras, dibujarTapa = false) {
+function generar_superficie_barrido_variable(curva, figuras, 
+					dibujarTapa = false, repeatU, repeatV, repeatUCap, repeatVCap) {
   	let indices = [];
  	let pos = [];
   	let nrm = [];
+	let uv = [];
 
 	var segLongitud = curva.matricesPuntos.length;
   	var segRadiales = figuras[0].puntos.length;
+
+	if (!repeatU) repeatU=1;
+	if (!repeatV) repeatV=1;
+
+	if (!repeatUCap) repeatUCap=1;
+	if (!repeatVCap) repeatVCap=1;
 
 	for (let i = 0; i < segLongitud; i++) {
 		for (let j = 0; j < segRadiales; j++) {
@@ -234,6 +261,12 @@ function generar_superficie_barrido_variable(curva, figuras, dibujarTapa = false
 			nrm.push(n[0]);
 			nrm.push(n[1]);
 			nrm.push(n[2]);
+			
+			let cU = -repeatV*(j/(figuras[i].puntos.length-1))
+			let cV = repeatU*(i/curva.matricesPuntos.length)
+
+			uv.push(cU);
+			uv.push(cV);
 		}
 	}
 			
@@ -249,7 +282,7 @@ function generar_superficie_barrido_variable(curva, figuras, dibujarTapa = false
         	}
    	 }
 	
-	if(dibujarTapa){
+	if(false){
 		for (var j=0;j<segRadiales;j++){
 			let int = vec3.fromValues(0, 0, 0)
 			vec3.transformMat4(int, int, curva.matricesPuntos[segLongitud-1]);
@@ -295,9 +328,17 @@ function generar_superficie_barrido_variable(curva, figuras, dibujarTapa = false
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 
+    var uvBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uv), gl.STATIC_DRAW);
+    
+    uvBuffer.itemSize = 2;
+    uvBuffer.numItems = uv.length / 2;
+
     return {
         vertexBuffer,
         normalBuffer,
-        indexBuffer
+        indexBuffer,
+	uvBuffer
     }
 }

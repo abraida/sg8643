@@ -9,6 +9,8 @@ vertexShader = null;
 
 var vertexPositionAttribute = null;
 var vertexNormalAttribute = null;
+var vertexTextureAttribute = null;
+var colorAttribute = null;
 
 var modelMatrix = mat4.create();
 var viewMatrix = mat4.create();
@@ -106,6 +108,17 @@ function setupVertexShaderMatrix() {
 	gl.uniformMatrix4fv(viewMatrixUniform, false, viewMatrix);
 	gl.uniformMatrix4fv(projMatrixUniform, false, projMatrix);
 	gl.uniformMatrix4fv(normalMatrixUniform, false, normalMatrix);
+
+	var ambientColorUniform = gl.getUniformLocation(glProgram, "uAmbientColor");
+	var directionalPosUniform = gl.getUniformLocation(glProgram, "uDirectionalPos");
+	var directionalColorUniform = gl.getUniformLocation(glProgram, "uDirectionalColor");
+	var specularColorUniform = gl.getUniformLocation(glProgram, "uSpecularColor");
+
+	gl.uniform3f(ambientColorUniform, ambColor.r, ambColor.g, ambColor.b);
+	gl.uniform3f(directionalPosUniform, 1.0, 1.0, 1.0);
+	gl.uniform3f(directionalColorUniform, diffColor.r, diffColor.g, diffColor.b);
+	gl.uniform3f(specularColorUniform, specColor.r, specColor.g, specColor.b);
+
 }
 
 function setupCameras() {
