@@ -77,7 +77,10 @@ function generar_esfera() {
     }	
 }
 
-function generar_plano(ancho, alto) {
+function generar_plano(ancho, alto, repeatU, repeatV) {
+	if (!repeatU) repeatU=1;
+	if (!repeatV) repeatV=1;
+		
 	let indices = [0, 2, 1, 1, 2, 3];
   	let pos = [
 		0, alto, 0,
@@ -92,25 +95,38 @@ function generar_plano(ancho, alto) {
 		0, 0, -1,
 	];
 
-    var vertexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pos), gl.STATIC_DRAW);
+	let uv = [
+		0, repeatV,
+		repeatU, repeatV,
+		0, 0,
+		repeatU, 0
+	];
 
-    var normalBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(nml), gl.STATIC_DRAW);
 
-    var indexBuffer = gl.createBuffer();
-    indexBuffer.number_vertex_point = indices.length;
+	var vertexBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pos), gl.STATIC_DRAW);
 
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+	var normalBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(nml), gl.STATIC_DRAW);
+
+	var indexBuffer = gl.createBuffer();
+	indexBuffer.number_vertex_point = indices.length;
+
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+
+	var uvBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uv), gl.STATIC_DRAW);
 
 
     return {
         vertexBuffer,
         normalBuffer,
-        indexBuffer
+        indexBuffer,
+	uvBuffer
     }
 
 }
@@ -217,8 +233,6 @@ function generar_superficie_barrido(curva, figura, dibujarTapa = false,
     var uvBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uv), gl.STATIC_DRAW);
-    uvBuffer.itemSize = 2;
-    uvBuffer.numItems = uv.length / 2;
 
     return {
         vertexBuffer,
@@ -229,7 +243,7 @@ function generar_superficie_barrido(curva, figura, dibujarTapa = false,
 }
 
 function generar_superficie_barrido_variable(curva, figuras, 
-					dibujarTapa = false, repeatU, repeatV, repeatUCap, repeatVCap) {
+					dibujarTapa = false, repeatU, repeatV) {
   	let indices = [];
  	let pos = [];
   	let nrm = [];
@@ -241,8 +255,6 @@ function generar_superficie_barrido_variable(curva, figuras,
 	if (!repeatU) repeatU=1;
 	if (!repeatV) repeatV=1;
 
-	if (!repeatUCap) repeatUCap=1;
-	if (!repeatVCap) repeatVCap=1;
 
 	for (let i = 0; i < segLongitud; i++) {
 		for (let j = 0; j < segRadiales; j++) {
@@ -332,8 +344,6 @@ function generar_superficie_barrido_variable(curva, figuras,
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uv), gl.STATIC_DRAW);
     
-    uvBuffer.itemSize = 2;
-    uvBuffer.numItems = uv.length / 2;
 
     return {
         vertexBuffer,

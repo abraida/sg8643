@@ -44,7 +44,7 @@ function initWebGL() {
 function setupWebGL() {
 		gl.enable(gl.DEPTH_TEST);
 		//set the clear color
-		gl.clearColor(0.1, 0.1, 0.1, 1.0);
+		gl.clearColor(72/255, 136/255, 240/255, 1.0);
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		
 		gl.viewport(0, 0, canvas.width, canvas.height);
@@ -110,14 +110,30 @@ function setupVertexShaderMatrix() {
 	gl.uniformMatrix4fv(normalMatrixUniform, false, normalMatrix);
 
 	var ambientColorUniform = gl.getUniformLocation(glProgram, "uAmbientColor");
-	var directionalPosUniform = gl.getUniformLocation(glProgram, "uDirectionalPos");
-	var directionalColorUniform = gl.getUniformLocation(glProgram, "uDirectionalColor");
-	var specularColorUniform = gl.getUniformLocation(glProgram, "uSpecularColor");
+	var lightColorsUniform = gl.getUniformLocation(glProgram, "uLightColor");
+	var lightPosUniform = gl.getUniformLocation(glProgram, "uLightPos");
+	var lightConstUniform = gl.getUniformLocation(glProgram, "uLightConst");
 
-	gl.uniform3f(ambientColorUniform, ambColor.r, ambColor.g, ambColor.b);
-	gl.uniform3f(directionalPosUniform, 1.0, 1.0, 1.0);
-	gl.uniform3f(directionalColorUniform, diffColor.r, diffColor.g, diffColor.b);
-	gl.uniform3f(specularColorUniform, specColor.r, specColor.g, specColor.b);
+	var lightIsDirUniform = gl.getUniformLocation(glProgram, "uLightIsDirectional");
+
+	gl.uniform3f(ambientColorUniform, ambColor[0], ambColor[1], ambColor[2]);
+
+	var colors = []
+	colors = colors.concat(diffColor, antColor1, antColor2, catColor);
+	
+	var pos = []
+	pos = pos.concat([1.0, 1.0, 0.8], [10.0, 10.0, 10.0], [20.0, 20.0, 20.0], [30.0, 30.0, 30.0]);
+	
+	var coeff = []
+	coeff = coeff.concat([0.0, 0.0, 0.0], [1.0, 0.35, 0.88], [1.0, 0.35, 0.88],  [1.0, 0.35, 0.88])
+
+	var isDirectional = [1, 0, 0, 0];
+
+	gl.uniform3fv(lightColorsUniform, colors);
+	gl.uniform3fv(lightPosUniform, pos);
+	gl.uniform3fv(lightConstUniform, coeff);
+
+	gl.uniform1iv(lightIsDirUniform, isDirectional);
 
 }
 

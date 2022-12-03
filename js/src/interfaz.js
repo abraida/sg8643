@@ -30,7 +30,6 @@ lights = {
 
 var ambColor = hexToRgb(lights.amb);
 var diffColor = hexToRgb(lights.diff);
-var specColor = hexToRgb(lights.spec);
 var antColor1 = hexToRgb(lights.ant1);
 var antColor2 = hexToRgb(lights.ant2);
 var catColor = hexToRgb(lights.cat);
@@ -202,9 +201,5 @@ function initMenu() {
 
 function hexToRgb(hex) {
 	var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-	return result ? {
-		r: parseInt(result[1], 16)/255,
-		g: parseInt(result[2], 16)/255,
-		b: parseInt(result[3], 16)/255
-	} : null;
+	return [parseInt(result[1], 16)/255, parseInt(result[2], 16)/255, parseInt(result[3], 16)/255]
 }

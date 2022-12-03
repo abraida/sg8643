@@ -216,7 +216,9 @@ class Castillo extends Objeto{
 		
 		let geom = generar_superficie_barrido(path, shape);	
 		let p = new Objeto();
+		p.setColor(59, 90, 94);
 		p.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		p.setTextureBuffer(geom.uvBuffer);
 		
 
 		return p;
@@ -250,7 +252,11 @@ class Castillo extends Objeto{
 		let p = new Objeto();
 
 		let geom = generar_plano(this.config.ancho+.5, this.config.largo+.5);	
+		p.setColor(59, 90, 94);
+
 		p.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		p.setTextureBuffer(geom.uvBuffer);
+
 		return p		
 	}
 	
@@ -277,7 +283,7 @@ class Castillo extends Objeto{
 		path.matricesPuntos.pop();
 
 		let m = new Objeto()
-		let geom = generar_superficie_barrido(path, shape, false, 30, 60);
+		let geom = generar_superficie_barrido(path, shape, false, 5, 20);
 		m.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
 		m.crearTextura("res/wall.png", "uZincTex");
 		m.setTextureBuffer(geom.uvBuffer);
@@ -309,10 +315,11 @@ class Castillo extends Objeto{
 	
 		let path = path_circle(0.001, 15);
 	
-		let geom = generar_superficie_barrido(path, shape);
+		let geom = generar_superficie_barrido(path, shape, false, 3, 11);
 		let t = new Objeto();
+		t.crearTextura("res/wall.png", "uZincTex");
 		t.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
-		
+		t.setTextureBuffer(geom.uvBuffer);		
 		return t;
 	}
 	#crear_muro2() {
@@ -356,10 +363,14 @@ class Castillo extends Objeto{
 		let m1 = new Objeto()
 		let geom = generar_superficie_barrido(path1, shape);
 		m1.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
-	
+		m1.crearTextura("res/wall.png", "uZincTex");
+		m1.setTextureBuffer(geom.uvBuffer);
+
 		let m2 = new Objeto()
 		geom = generar_superficie_barrido(path2, shape);
 		m2.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		m2.crearTextura("res/wall.png", "uZincTex");
+		m2.setTextureBuffer(geom.uvBuffer);
 		
 		return {m1, m2};			
 	}
@@ -398,11 +409,15 @@ class Castillo extends Objeto{
 		let m1 = new Objeto()
 		let geom = generar_superficie_barrido(path1, shape, true);
 		m1.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
-	
+		m1.crearTextura("res/wall.png", "uZincTex");
+		m1.setTextureBuffer(geom.uvBuffer);
+
 		let m2 = new Objeto()
 		geom = generar_superficie_barrido(path2, shape, true);
 		m2.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
-		
+		m2.crearTextura("res/wall.png", "uZincTex");
+		m2.setTextureBuffer(geom.uvBuffer);
+
 		return {m1, m2};	
 	}
 }

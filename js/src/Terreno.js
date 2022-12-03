@@ -15,7 +15,9 @@ class Terreno extends Objeto {
 		
 		let geom = generar_superficie_barrido(path, shape);
 
+		isla.setColor(35, 153, 55);
 		isla.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		isla.setTextureBuffer(geom.uvBuffer);
 		this.agregarHijo(isla);
 		
 		
@@ -27,16 +29,24 @@ class Terreno extends Objeto {
 		path = path_circle(0.01, 10);
 
 		geom = generar_superficie_barrido(path, shape);
-		
+
+		tierra.setColor(35, 153, 55);
 		tierra.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		tierra.setTextureBuffer(geom.uvBuffer);
+
 		this.agregarHijo(tierra);
 
 		
 		let plano = new Objeto();
-		geom = generar_plano(rMundo+20, rMundo+20);
+		geom = generar_plano(rMundo+20, rMundo+20, 5, 5);
+
+		plano.crearTextura("res/water.jpg", "uZincTex")
+
 		plano.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		plano.setTextureBuffer(geom.uvBuffer);
 		plano.setRotacion(1, 0, 0, Math.PI/2);
 		plano.setPosicion(-(rMundo+20)/2, -3, -(rMundo+20)/2);
+
 		this.agregarHijo(plano);	
 	}
 }

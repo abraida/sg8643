@@ -73,7 +73,10 @@
         </script>
 
         <script id="shader-fs" type="x-shader/x-fragment">
+            #define N_LIGHTS 4 
+            
             precision highp float;
+
             varying vec3 vNormal;
             varying vec3 vPosWorld;
 
@@ -83,28 +86,24 @@
             uniform sampler2D uZincTex;
 
             uniform vec3 uAmbientColor;	    
-            uniform vec3 uDirectionalPos;        
-            uniform vec3 uDirectionalColor;   
-            uniform vec3 uSpecularColor;
 
-            uniform vec3 lightPos; // Light position
+            uniform vec3 uLightColor[N_LIGHTS];
+            uniform vec3 uLightPos[N_LIGHTS];
+            uniform vec3 uLightConst[N_LIGHTS];
+            uniform bool uLightIsDirectional[N_LIGHTS];
 
             uniform bool usarTextura;
             
-            void main(void) {
-                float Ka = .8;  
-                float Kd = .8;   
-                float Ks = .8;   
-
-                float shininessVal = 30.0;
-
+            vec3 CalcDirLight(vec3 lightColor, vec3 dir) {
+                float shininessVal = 150.0;
+                
                 vec3 N = normalize(vNormal);
-                vec3 L = normalize(uDirectionalPos - vPosWorld);
+                vec3 L = normalize(-dir);
 
-                float lambertian = max(dot(N, L), 0.0);
+                float diff = max(dot(N, L), 0.0);
                 float specular = 0.0;
-
-                if(lambertian > 0.0) {
+                
+                if(diff > 0.0) {
                     vec3 R = reflect(-L, N);      // Reflected light vector
                     vec3 V = normalize(-vPosWorld); // Vector to viewer
                     // Compute the specular term
@@ -112,26 +111,70 @@
                     specular = pow(specAngle, shininessVal);
                 }
 
-                vec3 color = Ka * uAmbientColor +
-                                    Kd * lambertian * uDirectionalColor +
-                                    Ks * specular * uSpecularColor;
-                
                 if (usarTextura) {
                     vec3 tex = texture2D(uZincTex, vTextureCoord).xyz;
- 
-                    color = uAmbientColor * tex +
-                            lambertian * uDirectionalColor * tex +
-                            Ks * specular * uSpecularColor;        
+                    return  (diff * lightColor * tex + 
+                             0.2 * specular * lightColor);        
                 }
 
-                else {
-                    color = Ka * uAmbientColor * vColor +
-                            Kd * lambertian * uDirectionalColor * vColor +
-                            Ks * specular * uSpecularColor;     
+                return (.8 * diff * lightColor * vColor + 
+                             0.2 * specular * lightColor); 
+            }  
+
+            vec3 CalcPointLight(vec3 lightColor, vec3 pos, vec3 coeff) {
+                float shininessVal = 150.0;
+                
+                vec3 N = normalize(vNormal);
+                vec3 L = normalize(pos - vPosWorld);
+
+                float diff = max(dot(N, L), 0.0);
+                float specular = 0.0;
+                
+                if(diff > 0.0) {
+                    vec3 R = reflect(-L, N);      // Reflected light vector
+                    vec3 V = normalize(-vPosWorld); // Vector to viewer
+                    // Compute the specular term
+                    float specAngle = max(dot(R, V), 0.0);
+                    specular = pow(specAngle, shininessVal);
                 }
 
-                gl_FragColor = vec4(color,1.0);
+                float distance    = length(pos - vPosWorld);
+                
+                float attenuation = 1.0 / (coeff[0] + coeff[1] * distance + 
+  			     coeff[2] * (distance * distance));
 
+                if (usarTextura) {
+                    vec3 tex = texture2D(uZincTex, vTextureCoord).xyz;
+                    return  (diff * lightColor * tex * attenuation + 
+                             0.2 * specular * lightColor * attenuation);        
+                }
+
+                return (.8 * diff * lightColor * vColor * attenuation + 
+                             0.2 * specular * lightColor * attenuation); 
+            }  
+
+            void main(void) {
+                vec3 result = vec3(0, 0, 0);
+
+                for(int i = 0; i < N_LIGHTS; i++) {
+                    if(uLightIsDirectional[i]){
+                        result += CalcDirLight(uLightColor[i], uLightPos[i]);    
+                    }
+                    else {
+                        result += CalcPointLight(uLightColor[i], uLightPos[i], uLightConst[i]);    
+
+                    }
+                }
+
+                if (usarTextura) {
+                    vec3 tex = texture2D(uZincTex, vTextureCoord).xyz;
+                    result += uAmbientColor * tex;        
+                    gl_FragColor = vec4(result, 1.0);
+                    return;
+                }
+
+                result += uAmbientColor * .5;        
+                gl_FragColor = vec4(result, 1.0);
             }
         </script>
         
