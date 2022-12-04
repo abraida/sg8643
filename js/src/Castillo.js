@@ -17,6 +17,8 @@ class Castillo extends Objeto{
 		let altoBalcon = 1;
 		let altoTorreM = altoMuro*1.5 - altoBalcon;
 		
+		let largoPuerta = 5;
+
 		this.config = {
 			ancho: ancho,
 			largo: largo,
@@ -32,8 +34,14 @@ class Castillo extends Objeto{
 			nVentanasV: nVentanasV,
 			rTorreM: rTorreM,
 			altoBalcon: altoBalcon,
-			altoTorreM: altoTorreM
+			altoTorreM: altoTorreM,
+			largoPuerta: largoPuerta
 		}
+
+		this.dir = vec3.create();
+		this.posTorreA = vec3.create();
+		this.posTorreB = vec3.create();
+
 
 		this.edificio = new Objeto();
 		this.edificio.setPosicion(-ancho/2, 0, largo/2);
@@ -156,6 +164,10 @@ class Castillo extends Objeto{
 		let muro = this.#crear_muro();
 		this.muralla.agregarHijo(muro);
 
+		this.len = vec3.dist(this.posTorreA, this.posTorreB);
+		vec3.sub(this.dir, this.posTorreB, this.posTorreA);
+		vec3.normalize(this.dir, this.dir);
+
 		// Torres muralla
 
 		let puntosTorres = path_circle(27, lados).matricesPuntos;
@@ -175,12 +187,21 @@ class Castillo extends Objeto{
 		let m = this.#crear_muro2();
 		this.muralla.agregarHijo(m.m1);
 		this.muralla.agregarHijo(m.m2);
+		this.muralla.agregarHijo(m.m3);
+
 
 		// Marco de la puerta
 
 		let ma = this.#crear_marco();
 		this.muralla.agregarHijo(ma.m1);
 		this.muralla.agregarHijo(ma.m2);
+
+		// Puerta
+
+		let pu = this.#crear_puerta();
+		this.muralla.agregarHijo(pu);
+
+
 
 	}
 	
@@ -253,7 +274,7 @@ class Castillo extends Objeto{
 		let geom = generar_superficie_barrido(path, shape, true);
 		let v = new Objeto();
 		
-		v.setColor(56, 7, 7);
+		v.setColor(40, 3, 3);
 		v.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
 		v.setRotacion(0, 1, 0, Math.PI);
 		v.setTextureBuffer(geom.uvBuffer);
@@ -293,6 +314,10 @@ class Castillo extends Objeto{
 		
 		let shape = shape_cubica(puntos, 20);
 		let path = path_circle(30, lados);
+
+		mat4.getTranslation(this.posTorreA, path.matricesPuntos[path.matricesPuntos.length-1]);
+		mat4.getTranslation(this.posTorreB, path.matricesPuntos[path.matricesPuntos.length-2]);
+
 		path.matricesNormales.pop();
 		path.matricesPuntos.pop();
 
@@ -340,7 +365,7 @@ class Castillo extends Objeto{
 		let h = this.config.altoBalcon;
 		let a = this.config.altoMuro;
 		let lados = this.config.lados;
-	
+
 		let puntos = [
 		[0, 0, 0], [.06*6, .3*a, 0], [.2*6, .6*a, 0], [.2*6, a, 0], 
 		[.2*6, a, 0], [.2*6, a, 0], [.2*6, a+h, 0], [.2*6, a+h, 0],
@@ -352,27 +377,34 @@ class Castillo extends Objeto{
 		[.7*6+.4, a+h, 0], [.7*6+.4, a+h, 0], [.7*6+.4, a, 0], [.7*6+.4, a, 0],
 		[.7*6+.4, a, 0], [.7*6+.4, .6*a, 0], [.56*6+.4, .3*a, 0], [.5*6+.4, 0, 0],	
 		];
+
+		let puntos2 = [
+		[.2*6, a, 0], [.2*6, a, 0], [.2*6, a+h, 0], [.2*6, a+h, 0],
+		[.2*6, a+h, 0], [.2*6, a+h, 0], [.2*6+.2, a+h, 0], [.2*6+.2, a+h, 0],
+		[.2*6+.2, a+h, 0], [.2*6+.2, a+h, 0], [.2*6+.2, a, 0], [.2*6+.2, a, 0],
+		[.2*6+.2, a, 0], [.2*6+.2, a, 0], [.7*6+.2, a, 0], [.7*6+.2, a, 0],
+		[.7*6+.2, a, 0], [.7*6+.2, a, 0], [.7*6+.2, a+h, 0], [.7*6+.2, a+h, 0],
+		[.7*6+.2, a+h, 0], [.7*6+.2, a+h, 0], [.7*6+.4, a+h, 0], [.7*6+.4, a+h, 0],
+		[.7*6+.4, a+h, 0], [.7*6+.4, a+h, 0], [.7*6+.4, a, 0], [.7*6+.4, a, 0],
+		];
+
+		let shape = shape_cubica(puntos, 10);
+		let shape2 = shape_cubica(puntos2, 10);
+	
+		let p0 = this.posTorreA;
 		
-		let shape = shape_cubica(puntos, 20);
-	
-		let circulo = path_circle(30, lados);
-		let p0 = vec3.create();
-		let p3 = vec3.create();
-	
-		mat4.getTranslation(p0, circulo.matricesPuntos[circulo.matricesPuntos.length-2]);
-		mat4.getTranslation(p3, circulo.matricesPuntos[circulo.matricesPuntos.length-1]);
-	
-		let path = path_3Dline(p0, p3, 10);
-	
-		let path1 = {
-			matricesPuntos: path.matricesPuntos.slice(0,4),
-			matricesNormales: path.matricesNormales.slice(0,4)
-		}
-	
-		let path2 = {
-			matricesPuntos: path.matricesPuntos.slice(7,10),
-			matricesNormales: path.matricesNormales.slice(7,10)
-		}	
+		let p1 = vec3.create();
+		vec3.scaleAndAdd(p1, this.posTorreA, this.dir, (this.len - this.config.largoPuerta) / 2);
+
+		let p2 = vec3.create();
+		vec3.scaleAndAdd(p2, this.posTorreB, this.dir, -(this.len - this.config.largoPuerta) / 2);		
+
+		let p3 = this.posTorreB;
+
+		let path1 = path_3Dline(p1, p0, 1);
+		let path2 = path_3Dline(p2, p1, 1);
+		let path3 = path_3Dline(p3, p2, 1);
+
 	
 		let m1 = new Objeto()
 		let geom = generar_superficie_barrido(path1, shape);
@@ -381,12 +413,18 @@ class Castillo extends Objeto{
 		m1.setTextureBuffer(geom.uvBuffer);
 
 		let m2 = new Objeto()
-		geom = generar_superficie_barrido(path2, shape);
+		geom = generar_superficie_barrido(path2, shape2);
 		m2.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
 		m2.crearTextura("res/wall.png", "uZincTex");
 		m2.setTextureBuffer(geom.uvBuffer);
+
+		let m3 = new Objeto()
+		geom = generar_superficie_barrido(path3, shape);
+		m3.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		m3.crearTextura("res/wall.png", "uZincTex");
+		m3.setTextureBuffer(geom.uvBuffer);
 		
-		return {m1, m2};			
+		return {m1, m2, m3};			
 	}
 
 	#crear_marco() {
@@ -400,38 +438,67 @@ class Castillo extends Objeto{
 
 		let shape = concatenar(r1, r2);
 		shape = concatenar(shape, r3);
-
-		let circulo = path_circle(30, lados);
-		let p0 = vec3.create();
+	
 		let p1 = vec3.create();
-	
-		mat4.getTranslation(p0, circulo.matricesPuntos[circulo.matricesPuntos.length-2]);
-		mat4.getTranslation(p1, circulo.matricesPuntos[circulo.matricesPuntos.length-1]);
-	
-		let path = path_3Dline(p0, p1, 19);
+		vec3.scaleAndAdd(p1, this.posTorreA, this.dir, (this.len - this.config.largoPuerta) / 2);
 
-		let path1 = {
-			matricesPuntos: path.matricesPuntos.slice(5,7),
-			matricesNormales: path.matricesNormales.slice(5,7)
-		}
-	
-		let path2 = {
-			matricesPuntos: path.matricesPuntos.slice(13,15).reverse(),
-			matricesNormales: path.matricesNormales.slice(13,15).reverse()
-		}	
-	
+		let p0 = vec3.create();
+		vec3.scaleAndAdd(p0, p1, this.dir, -this.config.largoPuerta/2);	
+		
+		let p2 = vec3.create();
+		vec3.scaleAndAdd(p2, this.posTorreB, this.dir, -(this.len - this.config.largoPuerta) / 2);		
+
+		let p3 = vec3.create();
+		vec3.scaleAndAdd(p3, p2, this.dir, this.config.largoPuerta / 2);	
+
+		let path1 = path_3Dline(p1, p0, 1);
+		let path2 = path_3Dline(p3, p2, 1);
+
 		let m1 = new Objeto()
-		let geom = generar_superficie_barrido(path1, shape, true);
+		let geom = generar_superficie_barrido(path1, shape, true, 2, .5);
 		m1.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
 		m1.crearTextura("res/wall.png", "uZincTex");
 		m1.setTextureBuffer(geom.uvBuffer);
 
 		let m2 = new Objeto()
-		geom = generar_superficie_barrido(path2, shape, true);
+		geom = generar_superficie_barrido(path2, shape, true, 2, .5);
 		m2.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
 		m2.crearTextura("res/wall.png", "uZincTex");
 		m2.setTextureBuffer(geom.uvBuffer);
 
 		return {m1, m2};	
 	}
+
+	#crear_puerta() {
+		let w = .1;
+		let a = this.config.altoMuro*1;
+
+		let r1 = shape_line([0 , 0, 0], [0, a, 0], 2);
+		let r2 = shape_line([0, a, 0], [w, a, 0], 2);
+		let r3 = shape_line([w, a, 0], [w, 0, 0], 2);
+
+		let shape = concatenar(r1, r2);
+		shape = concatenar(shape, r3);
+	
+		let p1 = vec3.create();
+		vec3.scaleAndAdd(p1, this.posTorreA, this.dir, (this.len - this.config.largoPuerta) / 2- 1);
+	
+		let p2 = vec3.create();
+		vec3.scaleAndAdd(p2, this.posTorreB, this.dir, -(this.len - this.config.largoPuerta) / 2 + 1);		
+	
+
+		let path1 = path_3Dline(p2, p1, 1);
+
+		let p = new Objeto()
+		p.setPosicion(-1.5, 0, 1);
+
+		let geom = generar_superficie_barrido(path1, shape, false, 2, 2);
+		p.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		p.crearTextura("res/gate.png", "uZincTex");
+
+		p.setTextureBuffer(geom.uvBuffer);
+
+		return p;	
+	}
+
 }
