@@ -138,8 +138,10 @@ function draw_scene() {
 	if(disparo != null && actualDis != null){
 		munPos =  actualDis;
 	}
+
+	var antPos = mCastillo.get_antorcha_pos();
 	
-	setupVertexShaderMatrix(munPos);
+	setupVertexShaderMatrix(munPos, antPos.pos1, antPos.pos2);
 	
 	if(DIBUJAR_CASTILLO)
 		mCastillo.dibujar(m);

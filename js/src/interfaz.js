@@ -23,8 +23,8 @@ lights = {
 	amb: "#242437",
 	diff: "#dcdcdc",
 	spec: "#000000",
-	ant1: "#ffffff",
-	ant2: "#000000",
+	ant1: "#ffbc7e",
+	ant2: "#ffbc7e",
 	cat: "#ffbc7e",
 }
 

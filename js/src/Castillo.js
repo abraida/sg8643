@@ -201,7 +201,11 @@ class Castillo extends Objeto{
 		let pu = this.#crear_puerta();
 		this.muralla.agregarHijo(pu);
 
+		// Antorcha
 
+		this.ant = this.#crear_antorchas();
+		this.muralla.agregarHijo(this.ant.e);
+		this.muralla.agregarHijo(this.ant.e1);
 
 	}
 	
@@ -501,4 +505,39 @@ class Castillo extends Objeto{
 		return p;	
 	}
 
+	#crear_antorchas() {
+		let p1 = vec3.create();
+		vec3.scaleAndAdd(p1, this.posTorreA, this.dir, (this.len - this.config.largoPuerta) / 2- 1);
+	
+		let p2 = vec3.create();
+		vec3.scaleAndAdd(p2, this.posTorreB, this.dir, -(this.len - this.config.largoPuerta) / 2 + 1);	
+
+		let geom = generar_esfera();
+		let e = new Objeto();
+		e.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		e.setPosicion(p1[0] + .3, p1[1] + 2, p1[2]);
+		e.setColor(50, 50, 50);
+		e.setTextureBuffer(geom.uvBuffer)
+		e.setEscala(.2, .2, .2);
+
+		let e1 = new Objeto();
+		e1.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		e1.setPosicion(p2[0] + .3, p2[1] + 2, p2[2]);
+		e1.setColor(50, 50, 50);
+		e1.setTextureBuffer(geom.uvBuffer)
+		e1.setEscala(.2, .2, .2);
+
+		return {e, e1};		
+	}
+
+
+	get_antorcha_pos(){
+		let pos1 = vec3.create();
+		let pos2 = vec3.create();
+
+		vec3.transformMat4(pos1, pos1, this.ant.e.wpos);
+		vec3.transformMat4(pos2, pos2, this.ant.e1.wpos);
+
+		return {pos1, pos2};
+	}
 }

@@ -204,7 +204,7 @@ function generar_superficie_barrido(curva, figura, dibujarTapa = false,
 			let p = vec3.fromValues(figura.puntos[0][0], figura.puntos[0][1], 0)
 			vec3.transformMat4(p, p, curva.matricesPuntos[segLongitud-1]);
 
-			var n = vec3.fromValues(0, 0, 1);
+			var n = vec3.fromValues(0, 0, -1);
 			vec3.transformMat4(n, n, curva.matricesNormales[segLongitud-1]);		
 			vec3.normalize(n, n);
 				
