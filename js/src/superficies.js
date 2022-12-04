@@ -190,18 +190,18 @@ function generar_superficie_barrido(curva, figura, dibujarTapa = false,
 	for (let i = 0; i < segLongitud - 1; i++) {
 		for (let j = 0; j < segRadiales - 1; j++) {
 			indices.push(i * segRadiales + j);
-			indices.push((i + 1) * segRadiales + j);
 			indices.push(i * segRadiales + j + 1);
+			indices.push((i + 1) * segRadiales + j);
 
 			indices.push(i * segRadiales + j + 1);
-			indices.push((i + 1) * segRadiales + j);
 			indices.push((i + 1) * segRadiales + j + 1);
+			indices.push((i + 1) * segRadiales + j);
 		}
     	}
 	
-	if(false){
+	if(dibujarTapa){
 		for (var j=0;j<segRadiales;j++){
-			let p = vec3.fromValues(0, 0, 0)
+			let p = vec3.fromValues(figura.puntos[0][0], figura.puntos[0][1], 0)
 			vec3.transformMat4(p, p, curva.matricesPuntos[segLongitud-1]);
 
 			var n = vec3.fromValues(0, 0, 1);
@@ -216,6 +216,15 @@ function generar_superficie_barrido(curva, figura, dibujarTapa = false,
 			nrm.push(n[0]);
 			nrm.push(n[1]);
 			nrm.push(n[2]);					
+
+			if(j>0)
+				acumLength += vec3.dist(figura.puntos[j], figura.puntos[j-1])
+
+			let cU = repeatU*(acumLength/(totalLength))
+			let cV = repeatV
+
+			uv.push(cU);
+			uv.push(cV);
 		}
 
 		for (let j = 0; j < segRadiales - 1; j++) {
@@ -272,7 +281,11 @@ function generar_superficie_barrido_variable(curva, figuras,
 	if (!repeatV) repeatV=1;
 
 
+	
 	for (let i = 0; i < segLongitud; i++) {
+		var totalLength = getShapeLenght(figuras[i]);
+		var acumLength = 0;	
+		
 		for (let j = 0; j < segRadiales; j++) {
 			let v = vec3.fromValues(figuras[i].puntos[j][0], figuras[i].puntos[j][1], 0);
 			vec3.transformMat4(v, v, curva.matricesPuntos[i]);
@@ -290,12 +303,18 @@ function generar_superficie_barrido_variable(curva, figuras,
 			nrm.push(n[1]);
 			nrm.push(n[2]);
 			
-			let cU = -repeatV*(j/(figuras[i].puntos.length-1))
-			let cV = repeatU*(i/curva.matricesPuntos.length)
+			if(j>0)
+				acumLength += vec3.dist(figuras[i].puntos[j], figuras[i].puntos[j-1]);
+
+			let cU = repeatU*(acumLength/(totalLength));
+			let cV = repeatV;
 
 			uv.push(cU);
 			uv.push(cV);
 		}
+
+		acumLength = 0;	
+
 	}
 			
 	for (let i = 0; i < segLongitud - 1; i++) {

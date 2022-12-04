@@ -11,12 +11,12 @@ function shape_cubica(puntosDeControl, segmentos) {
         let puntos = puntosDeControl.slice(4*i);
         
         for (let u = 0; u <= segmentos; u++) {      
-            shape.puntos.push(curvaCubica(u*deltaU, puntos));
-            let tangente = curvaCubicaDerivadaPrimera(u*deltaU, puntos);
+            	shape.puntos.push(curvaCubica(u*deltaU, puntos));
+		let tangente = curvaCubicaDerivadaPrimera(u*deltaU, puntos);
         
-			let mod = Math.sqrt(tangente[1]*tangente[1] + tangente[0]*tangente[0]);
+		let mod = Math.sqrt(tangente[1]*tangente[1] + tangente[0]*tangente[0]);
 
-            shape.normales.push([tangente[1]/mod, tangente[0]/mod, 0]);
+            	shape.normales.push([-tangente[1]/mod, tangente[0]/mod, 0]);
         } 
     }
 
@@ -40,7 +40,7 @@ function shape_line(p0, p1, segmentos) {
 		y = p1[1] - p0[1];
 		
 		let mod = Math.sqrt(x*x + y*y);
-		shape.normales.push([y/mod, x/mod, 0]);
+		shape.normales.push([-y/mod, x/mod, 0]);
 	}
 
 	return shape;

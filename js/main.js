@@ -122,16 +122,17 @@ function draw_scene() {
 	vec3.fromValues(obj[0], obj[1], obj[2]),
 	vec3.fromValues(0, 1, 0)
 	);
-	
+
+	var camPosUniform = gl.getUniformLocation(glProgram, "uCamPos");
+
+	gl.uniform3f(camPosUniform, mCamara.pos[0], mCamara.pos[1], mCamara.pos[2]);
+
 	let m = mat4.create;
 	mat4.identity(m, m);
 	
 	mCastillo.setProgram(glProgram);
 	mTerreno.setProgram(glProgram);
 	mCatapulta.setProgram(glProgram);
-	
-	mFP.center.setProgram(glProgram);
-	mFP.center.dibujar(m);
 	
 	var munPos = mCatapulta.get_municion_pos();
 	if(disparo != null && actualDis != null){

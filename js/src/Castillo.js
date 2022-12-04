@@ -10,8 +10,8 @@ class Castillo extends Objeto{
 
 		let deltaVentanas = 3;
 		let anchoVentanas = 1;
-		let nVentanasH = (ancho-2*rTorre-deltaVentanas) / (deltaVentanas + anchoVentanas);
-		let nVentanasV = (largo-2*rTorre-deltaVentanas) / (deltaVentanas + anchoVentanas);
+		let nVentanasH = (largo-2*rTorre-deltaVentanas) / (deltaVentanas + anchoVentanas);
+		let nVentanasV = (ancho-2*rTorre-deltaVentanas) / (deltaVentanas + anchoVentanas);
 
 		let rTorreM = 4;
 		let altoBalcon = 1;
@@ -80,23 +80,24 @@ class Castillo extends Objeto{
 	
 		// Paredes
 
-		let paredSur = this.#crear_pared(ancho);
-
+		let paredSur = this.#crear_pared(largo);
+		paredSur.setPosicion(ancho, 0, -largo);
+		paredSur.setRotacion(0, 1, 0, -Math.PI/2);
 		this.edificio.agregarHijo(paredSur);
 
-		let paredEste = this.#crear_pared(largo);
+		let paredEste = this.#crear_pared(ancho);
+		paredEste.setRotacion(0, 1, 0, Math.PI);
 		paredEste.setPosicion(ancho, 0, 0);
-		paredEste.setRotacion(0, 1, 0, Math.PI/2);
 		this.edificio.agregarHijo(paredEste);
 
-		let paredNorte = this.#crear_pared(ancho);
-		paredNorte.setPosicion(ancho, 0, -largo);
-		paredNorte.setRotacion(0, 1, 0, Math.PI);
+		let paredNorte = this.#crear_pared(largo);
+		paredNorte.setRotacion(0, 1, 0, Math.PI/2);
+
+		paredNorte.setPosicion(0, 0, 0);
 		this.edificio.agregarHijo(paredNorte);
 		
-		let paredOeste = this.#crear_pared(largo);
+		let paredOeste = this.#crear_pared(ancho);
 		paredOeste.setPosicion(0, 0, -largo);
-		paredOeste.setRotacion(0, 1, 0, -Math.PI/2);
 		this.edificio.agregarHijo(paredOeste);
 
 		// Ventanas
@@ -104,44 +105,52 @@ class Castillo extends Objeto{
 		for (let j = 0; j < pisos; j++) {
 			let p0 = rTorre + deltaVentanas;
 			let px = deltaVentanas + anchoVentanas;
+
 			for (let i = 0; i < nVentanasH; i++) {
 				let v = this.#crear_ventana();
-				v.setPosicion(p0+i*px, altoPiso * (j+.4), -.5);
+				v.setPosicion(-1.5 + p0+i*px, altoPiso * (j+.4), .4);
 				paredSur.agregarHijo(v);
 			}
 
 			for (let i = 0; i < nVentanasH; i++) {
 				let v = this.#crear_ventana();
 
-				v.setPosicion(p0+i*px, altoPiso * (j+.4), -.5);
+				v.setPosicion(-1.5 + p0+i*px, altoPiso * (j+.4), .4);
 				paredNorte.agregarHijo(v);
 			}
 
 			for (let i = 0; i < nVentanasV; i++) {
 				let v = this.#crear_ventana();
 
-				v.setPosicion(p0+i*px, altoPiso * (j+.4), -.5);
+				v.setPosicion(-1.5 + p0+i*px, altoPiso * (j+.4), .4);
 				paredEste.agregarHijo(v);
 			}
 
 			for (let i = 0; i < nVentanasV; i++) {
 				let v = this.#crear_ventana();
 
-				v.setPosicion(p0+i*px, altoPiso * (j+.4), -.5);
+				v.setPosicion(-1.5 + p0+i*px, altoPiso * (j+.4), .4);
 				paredOeste.agregarHijo(v);
 			}
 		}
 
 		// Pisos
 
-		for (let i = 1; i <= pisos; i++) {
+		for (let i = 1; i < pisos; i++) {
 			let p = this.#crear_piso();
 			p.setPosicion(-.25, altoPiso*i, -largo-.25);
 			p.setRotacion(1, 0, 0, Math.PI/2);			
 			
 			this.edificio.agregarHijo(p);
 		}
-		
+
+		let p = this.#crear_piso();
+		p.setPosicion(-.25, altoPiso*pisos, -largo-.25);
+		p.setRotacion(1, 0, 0, Math.PI/2);			
+		p.crearTextura("res/wall.png", "uZincTex");
+			
+		this.edificio.agregarHijo(p);
+
 		// Muro
 
 		let muro = this.#crear_muro();
@@ -193,7 +202,7 @@ class Castillo extends Objeto{
 		shape = concatenar(shape, c2);
 	
 		let path = path_circle(0.001, 10);
-		let geom = generar_superficie_barrido(path, shape, false, 4, .75);
+		let geom = generar_superficie_barrido(path, shape, false, 1.5*this.config.pisos, 1);
 		
 		let t = new Objeto();
 		t.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
@@ -226,7 +235,7 @@ class Castillo extends Objeto{
 	
 	#crear_pared(w) {
 		let p = new Objeto();
-		let geom = generar_plano(w, this.config.altoPiso * this.config.pisos, false, 2, this.config.pisos); 
+		let geom = generar_plano(w, this.config.altoPiso * this.config.pisos, false, this.config.pisos, 2); 
 		p.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
 		p.crearTextura("res/castle.png", "uZincTex");
 		p.setTextureBuffer(geom.uvBuffer);
@@ -239,13 +248,14 @@ class Castillo extends Objeto{
 		[w, 0, 0], [w, 0, 0], [0, 0, 0], [0, 0, 0]];
 		
 		let shape = shape_cubica(puntos, 6);
-		let path = path_line(2, 1.2);
+		let path = path_line(2, .65);
 	
 		let geom = generar_superficie_barrido(path, shape, true);
 		let v = new Objeto();
 		
 		v.setColor(56, 7, 7);
 		v.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		v.setRotacion(0, 1, 0, Math.PI);
 		v.setTextureBuffer(geom.uvBuffer);
 
 		return v;
@@ -258,7 +268,6 @@ class Castillo extends Objeto{
 		p.setColor(56, 7, 7);
 
 		p.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
-		p.crearTextura("res/wall.png", "uZincTex");
 
 		p.setTextureBuffer(geom.uvBuffer);
 
@@ -288,7 +297,7 @@ class Castillo extends Objeto{
 		path.matricesPuntos.pop();
 
 		let m = new Objeto()
-		let geom = generar_superficie_barrido(path, shape, false, 1, lados);
+		let geom = generar_superficie_barrido(path, shape, false, 2, lados*2);
 		m.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
 		m.crearTextura("res/wall.png", "uZincTex");
 		m.setTextureBuffer(geom.uvBuffer);

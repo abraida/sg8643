@@ -96,15 +96,7 @@ document.addEventListener('keydown', (event) => {
 		break;  
 		case "s":
 			mCamara.mover(0, -1);
-		break;
-
-		case "q":
-                	mCamara.rotarEje(0.1);
-
-		break; 
-		case "e":
-                	mCamara.rotarEje(-0.1);
-		break;        
+		break;  
 		
 		case '1':
 			mCamara = mOrbCastillo;

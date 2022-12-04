@@ -13,7 +13,7 @@ class Objeto {
 		this.matriz_normales = mat4.create();
 		
 		this.posicion = vec3.fromValues(0, 0, 0);
-		this.rotacion = vec3.fromValues(0, 0, 0);
+		this.rotacion = mat4.create();
 		this.escala = vec3.fromValues(1, 1, 1);
 		this.alpha = 0;
 
@@ -62,12 +62,11 @@ class Objeto {
 		if(this.posicion)
 			mat4.translate(this.matriz_modelado, this.matriz_modelado, this.posicion);    
 		if (this.rotacion)
-			mat4.rotate(
+			mat4.multiply(
 			this.matriz_modelado,
 			this.matriz_modelado,
-			this.alpha,
-			this.rotacion
-		);
+			this.rotacion			
+			);
 		if(this.escala)
 			mat4.scale(this.matriz_modelado, this.matriz_modelado, this.escala);
 	};
@@ -179,11 +178,13 @@ class Objeto {
 
 	};
 	setRotacion(x, y, z, a) {
-		this.alpha = a;
-		this.rotacion[0] = x;
-		this.rotacion[1] = y;
-		this.rotacion[2] = z;
+		mat4.fromRotation(this.rotacion, a, vec3.fromValues(x, y, z))
 	};
+
+	rotate(x,y,z,a) {
+		mat4.rotate(this.rotacion, this.rotacion, a, vec3.fromValues(x, y, z))
+
+	}
 	setEscala(x, y, z) { 
 		this.escala[0] = x;
 		this.escala[1] = y;

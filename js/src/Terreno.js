@@ -48,7 +48,7 @@ class Terreno extends Objeto {
 		plano.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
 		plano.setTextureBuffer(geom.uvBuffer);
 		plano.setRotacion(1, 0, 0, Math.PI/2);
-		plano.setPosicion(-(rMundo+20)/2, -3, -(rMundo+20)/2);
+		plano.setPosicion(-(rMundo+20)/2, -1.5, -(rMundo+20)/2);
 
 		this.agregarHijo(plano);	
 	}

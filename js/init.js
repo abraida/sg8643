@@ -115,6 +115,9 @@ function setupVertexShaderMatrix(munPos) {
 	gl.uniformMatrix4fv(projMatrixUniform, false, projMatrix);
 	gl.uniformMatrix4fv(normalMatrixUniform, false, normalMatrix);
 
+	var debugMode = gl.getUniformLocation(glProgram, "debugMode");
+	gl.uniform1i(debugMode, false);
+
 	var ambientColorUniform = gl.getUniformLocation(glProgram, "uAmbientColor");
 	var lightColorsUniform = gl.getUniformLocation(glProgram, "uLightColor");
 	var lightPosUniform = gl.getUniformLocation(glProgram, "uLightPos");
