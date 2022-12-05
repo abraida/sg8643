@@ -96,6 +96,8 @@
             uniform sampler2D uNormalTex;
             uniform sampler2D uEmissiveTex;
 
+            uniform float shininess;
+
             uniform vec3 uAmbientColor;	    
 
             uniform vec3 uLightColor[N_LIGHTS];
@@ -109,8 +111,6 @@
             uniform bool debugMode;
 
             vec3 CalcDirLight(vec3 lightColor, vec3 dir, vec3 normal, vec4 tex) {
-                float shininessVal = 30.0;
-                
                 vec3 N = normalize(normal);
                 vec3 L = normalize(dir);
 
@@ -122,7 +122,7 @@
                     vec3 V = normalize(uCamPos-vPosWorld); 
 
                     float specAngle = max(dot(R, V), 0.0);
-                    specular = pow(specAngle, shininessVal);
+                    specular = pow(specAngle, shininess);
                 }
 
                 return  (diff * lightColor * vec3(tex) + 
@@ -130,9 +130,7 @@
             
             }  
 
-            vec3 CalcPointLight(vec3 lightColor, vec3 pos, vec3 coeff, vec3 normal, vec4 tex) {
-                float shininessVal = 30.0;
-                
+            vec3 CalcPointLight(vec3 lightColor, vec3 pos, vec3 coeff, vec3 normal, vec4 tex) {                
                 vec3 N = normalize(normal);
                 vec3 L = normalize(pos - vPosWorld);
 
@@ -144,7 +142,7 @@
                     vec3 V = normalize(uCamPos-vPosWorld); 
 
                     float specAngle = max(dot(R, V), 0.0);
-                    specular = pow(specAngle, shininessVal);
+                    specular = pow(specAngle, shininess);
                 }
 
                 float distance = length(pos - vPosWorld);
@@ -279,6 +277,7 @@
             uniform sampler2D uNmlTex;
             uniform sampler2D uEmiTex;
 
+            uniform float shininess;
             uniform vec3 uAmbientColor;	    
 
             uniform vec3 uLightColor[N_LIGHTS];
@@ -390,8 +389,6 @@
             }
 
             vec3 CalcDirLight(vec3 lightColor, vec3 dir, vec3 normal, vec3 tex) {
-                float shininessVal = 100.0;
-                
                 vec3 N = normalize(normal);
                 vec3 L = normalize(dir);
 
@@ -403,7 +400,7 @@
                     vec3 V = normalize(vCamPosWorld-vPosWorld); 
 
                     float specAngle = max(dot(R, V), 0.0);
-                    specular = pow(specAngle, shininessVal);
+                    specular = pow(specAngle, shininess);
                 }
 
                 return  (diff * lightColor * tex + 
@@ -411,9 +408,7 @@
             
             }  
         
-            vec3 CalcPointLight(vec3 lightColor, vec3 pos, vec3 coeff, vec3 normal, vec3 tex) {
-                float shininessVal = 100.0;
-                
+            vec3 CalcPointLight(vec3 lightColor, vec3 pos, vec3 coeff, vec3 normal, vec3 tex) {              
                 vec3 N = normalize(normal);
                 vec3 L = normalize(pos - vPosWorld);
 
@@ -425,7 +420,7 @@
                     vec3 V = normalize(vCamPosWorld-vPosWorld); 
 
                     float specAngle = max(dot(R, V), 0.0);
-                    specular = pow(specAngle, shininessVal);
+                    specular = pow(specAngle, shininess);
                 }
 
                 float distance = length(pos - vPosWorld);
@@ -461,7 +456,7 @@
                         vec4 rocaNml=texture2D(uRocaNmlTex, vTextureCoord*  scaleRoca);                    
                         vec4 lavaNml=texture2D(uLavaNmlTex,         vTextureCoord*scaleLava);     
                         
-                        vec3 normalTerreno=mix(lavaNml.xyz,rocaNml.xyz,mixLavaRoca);
+                        vec3 normalTerreno=mix(lavaNml.xyz,rocaNml.xyz,mixLavaRoca).rgb;
 
                         normalTex = normalTerreno;
                     }   

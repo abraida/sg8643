@@ -137,7 +137,7 @@ function draw_scene() {
 	var antPos = mCastillo.get_antorcha_pos();
 	
 	if(!lavaEmisiva)
-	mTerreno.apagarLava();
+		mTerreno.apagarLava();
 	
 	
 	gl.useProgram(glProgram);
@@ -151,6 +151,8 @@ function draw_scene() {
 	setupVertexShaderMatrixTerreno(munPos, antPos.pos1, antPos.pos2);
 	var camPosUniformT = gl.getUniformLocation(glProgramTerreno, "uCamPos");
 	gl.uniform3f(camPosUniformT, mCamara.pos[0], mCamara.pos[1], mCamara.pos[2]);
+
+	
 	
 	if (DIBUJAR_TERRENO)
 		mTerreno.dibujar(m);

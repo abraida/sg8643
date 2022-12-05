@@ -1,8 +1,8 @@
 from PIL import Image
 
-img = Image.open('res/castle.png', 'r')
+img = Image.open('res/window.png', 'r')
 has_alpha = img.mode == 'RGBA'
 
 alpha = img.split()[-1]
 
-print(list(alpha.getdata()))
+print(list(alpha.getdata())[0:100])

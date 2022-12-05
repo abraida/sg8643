@@ -35,6 +35,8 @@ var catColor = hexToRgb(lights.cat);
 
 var lavaEmisiva = true;
 var modoNormales = false;
+var usarMapaNormales = true;
+
 
 
 var disparar = function() {
@@ -199,6 +201,10 @@ function initMenu() {
 		setup_modelos();	
 	});
 
+	debug.add(window, 'usarMapaNormales').listen().onChange(function(){
+		setChecked("usarMapaNormales");
+		setup_modelos();	
+	});
 }
 
 function hexToRgb(hex) {

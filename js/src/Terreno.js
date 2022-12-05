@@ -65,8 +65,6 @@ class Terreno extends Objeto {
 		plano.usarNormalMap = true;
 		plano.usarEmissiveMap = true;
 
-
-
 		plano.setGeometria(geom);
 		plano.setTextureBuffer(geom.uvBuffer);
 		plano.setRotacion(1, 0, 0, Math.PI/2);

@@ -23,6 +23,7 @@ class Objeto {
 		this.usarNormalMap = false;
 		this.usarEmissiveMap = false;
 
+		this.shininess = 30;
 
 		this.textures = [];
 		this.texNames = [];
@@ -33,8 +34,10 @@ class Objeto {
 		this.wpos = vec3.fromValues(0, 0, 0);
 	}
 
-	setColor(r, g, b){
-		this.color = [r, g, b];
+	setColor(r, g, b, a){
+		if(!a)
+			a = 0;
+		this.color = [r, g, b, a];
 	}
 
 	setTextureBuffer(buffer) {
@@ -85,18 +88,23 @@ class Objeto {
 		
 	}
 
-	setUniformBools() {
+	setUniforms() {
 		var uBool = gl.getUniformLocation(this.Program, "usarTextura");
 		gl.uniform1i(uBool, Boolean(this.textureBuffer));
 
-		uBool = gl.getUniformLocation(this.Program, "usarNormalMap");
-		gl.uniform1i(uBool, this.usarNormalMap);
+		if(usarMapaNormales){
+			uBool = gl.getUniformLocation(this.Program, "usarNormalMap");
+			gl.uniform1i(uBool, this.usarNormalMap);
+		}
 
 		uBool = gl.getUniformLocation(this.Program, "usarEmissiveMap");
 		gl.uniform1i(uBool, this.usarEmissiveMap);
 
 		uBool = gl.getUniformLocation(this.Program, "difuminarTerreno");
 		gl.uniform1i(uBool, this.difuminarTerreno);
+
+		var uS = gl.getUniformLocation(this.Program, "shininess");
+		gl.uniform1f(uS, this.shininess);
 	}
 
 	dibujar(matPadre) {
@@ -113,22 +121,24 @@ class Objeto {
 		var normalMatrixUniform  = gl.getUniformLocation(this.Program, "normalMatrix");
 
 		mat4.invert(this.matriz_normales, m);
-		mat4.transpose(this.matriz_normales, m); 
+		mat4.transpose(this.matriz_normales, this.matriz_normales); 
 	
 		gl.uniformMatrix4fv(normalMatrixUniform, false, this.matriz_normales);
 
 
-		this.setUniformBools();
+		this.setUniforms();
 
 		if(this.textures.length == 0) {
 			let t = gl.createTexture();
 			gl.bindTexture(gl.TEXTURE_2D, t);
  
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 1, 1, 0, gl.RGB, gl.UNSIGNED_BYTE,
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
 			new Uint8Array([
 				this.color[0], 
 				this.color[1], 
-				this.color[2]]));	
+				this.color[2],
+				this.color[3]
+			]));	
 			this.textures.push(t);
 			this.texNames.push("uDiffTex");
 
@@ -191,6 +201,10 @@ class Objeto {
 			this.hijos[i].dibujar(m);
 
 	};
+
+	setShininess(f) {
+		this.shininess = f;
+	}
 
 	setGeometria(g) {
 		if (!g) {

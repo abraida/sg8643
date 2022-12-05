@@ -304,7 +304,8 @@ class Castillo extends Objeto{
 		
 		v.setRotacion(0, 1, 0, Math.PI);
 		
-		v.crearTextura("res/window.png", "uDiffTex");
+		v.setColor(100, 40, 40 , 200);
+		v.setShininess(100);
 
 		return v;
 	}
