@@ -23,7 +23,7 @@ class Objeto {
 		this.usarNormalMap = false;
 		this.usarEmissiveMap = false;
 
-		this.shininess = 30;
+		this.shininess = 5;
 
 		this.textures = [];
 		this.texNames = [];

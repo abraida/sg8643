@@ -267,6 +267,9 @@ class Castillo extends Objeto{
 		p.setTextureBuffer(geom.uvBuffer);
 		
 		p.crearTextura("res/roof.png", "uDiffTex");
+		p.crearTextura("res/roof-nml.png", "uNormalTex");
+		p.usarNormalMap = true;
+
 
 		return p;
 	}
