@@ -129,7 +129,7 @@ class Catapulta extends Objeto {
 		let cilindro = new Objeto();
 		cilindro.setGeometria(geom);
 		cilindro.setTextureBuffer(geom.uvBuffer);
-		cilindro.setColor(43, 28, 11);
+		cilindro.setColor(100, 100, 100);
 		cilindro.setEscala(1, largo, 1);
 
 		return cilindro;	
@@ -143,12 +143,12 @@ class Catapulta extends Objeto {
 		
 		let path = path_line(2, 1);
 
-		let geom = generar_superficie_barrido(path, shape, true);	
+		let geom = generar_superficie_barrido(path, shape, true, 4, 2);	
 		
 		let cuad = new Objeto();
 		cuad.setGeometria(geom);
 		cuad.setTextureBuffer(geom.uvBuffer);
-		cuad.setColor(43, 28, 11);
+		cuad.crearTextura("res/wood.png", "uDiffTex");
 
 		cuad.setEscala(ancho, alto, largo);
 
@@ -178,12 +178,12 @@ class Catapulta extends Objeto {
 		}	
 
 		path = path_line(3, 1);
-		let geom = generar_superficie_barrido_variable(path, shapes, false);	
+		let geom = generar_superficie_barrido_variable(path, shapes, false, 2, 2);	
 		
 		let cuad = new Objeto();
 		cuad.setGeometria(geom);
 		cuad.setTextureBuffer(geom.uvBuffer);
-		cuad.setColor(43, 28, 11);
+		cuad.crearTextura("res/wood.png", "uDiffTex");
 		cuad.setEscala(ancho, alto, largo);
 
 		return cuad;	

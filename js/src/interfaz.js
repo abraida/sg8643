@@ -21,10 +21,10 @@ parameters = {
 
 lights = {
 	amb: "#1a0909",
-	diff: "#333333",
+	diff: "#4a3030",
 	ant1: "#fdfdfd",
 	ant2: "#fdfdfd",
-	cat: "#a57a4e",
+	cat: "#fdfdfd",
 }
 
 var ambColor = hexToRgb(lights.amb);
@@ -34,6 +34,8 @@ var antColor2 = hexToRgb(lights.ant2);
 var catColor = hexToRgb(lights.cat);
 
 var lavaEmisiva = true;
+var modoNormales = false;
+
 
 var disparar = function() {
 	disparar_catapulta();
@@ -185,10 +187,18 @@ function initMenu() {
 		catColor = hexToRgb(lights.cat);
 	});
 
-	fLight.add(window, 'lavaEmisiva').listen().onChange(function(){
+	var debug = gui.addFolder("Debug");
+
+	debug.add(window, 'lavaEmisiva').listen().onChange(function(){
 		setChecked("lavaEmisiva");
 		setup_modelos();	
 	});
+
+	debug.add(window, 'modoNormales').listen().onChange(function(){
+		setChecked("modoNormales");
+		setup_modelos();	
+	});
+
 }
 
 function hexToRgb(hex) {

@@ -54,8 +54,6 @@
             
             uniform mat4 normalMatrix;
 
-            uniform vec3 uCamPos;
-
             varying vec3 vNormal;    
             varying mat3 vTBN;    
 
@@ -70,7 +68,6 @@
                 gl_Position = projMatrix * viewMatrix * modelMatrix * vec4(aVertexPosition, 1.0);
 
                 vPosWorld=(modelMatrix*vec4(aVertexPosition,1.0)).xyz;    
-                vCamPosWorld=(modelMatrix*vec4(uCamPos,1.0)).xyz;   
                 
                 vNormal= (normalMatrix*vec4(normalize(aVertexNormal),1.0)).xyz;     
                 
@@ -92,6 +89,7 @@
             varying vec3 vPosWorld;
             varying vec3 vCamPosWorld;
             varying mat3 vTBN;    
+            uniform vec3 uCamPos;
             
             varying vec2 vTextureCoord;
             uniform sampler2D uDiffTex;
@@ -109,6 +107,287 @@
             uniform bool usarNormalMap;
             uniform bool usarEmissiveMap;
             uniform bool debugMode;
+
+            vec3 CalcDirLight(vec3 lightColor, vec3 dir, vec3 normal, vec4 tex) {
+                float shininessVal = 30.0;
+                
+                vec3 N = normalize(normal);
+                vec3 L = normalize(dir);
+
+                float diff = max(dot(N, L), 0.0);
+                float specular = 0.0;
+                
+                if(diff > 0.0) {
+                    vec3 R = reflect(-L, N);      
+                    vec3 V = normalize(uCamPos-vPosWorld); 
+
+                    float specAngle = max(dot(R, V), 0.0);
+                    specular = pow(specAngle, shininessVal);
+                }
+
+                return  (diff * lightColor * vec3(tex) + 
+                            .3 * tex[3] * specular * lightColor);        
+            
+            }  
+
+            vec3 CalcPointLight(vec3 lightColor, vec3 pos, vec3 coeff, vec3 normal, vec4 tex) {
+                float shininessVal = 30.0;
+                
+                vec3 N = normalize(normal);
+                vec3 L = normalize(pos - vPosWorld);
+
+                float diff = max(dot(N, L), 0.0);
+                float specular = 0.0;
+                
+                if(diff > 0.0) {
+                    vec3 R = reflect(-L, N);  
+                    vec3 V = normalize(uCamPos-vPosWorld); 
+
+                    float specAngle = max(dot(R, V), 0.0);
+                    specular = pow(specAngle, shininessVal);
+                }
+
+                float distance = length(pos - vPosWorld);
+                
+                float attenuation = 1.0 / (coeff[0] + coeff[1] * distance + 
+  			     coeff[2] * (distance * distance));
+
+                return  (diff * lightColor * vec3(tex) * attenuation + 
+                            .3 * tex[3] * specular * lightColor * attenuation);        
+
+            }  
+
+            void main(void) {
+                
+                vec4 tex = texture2D(uDiffTex, vTextureCoord).rgba;
+
+                vec3 normal = vNormal;
+
+                if (usarNormalMap) {
+                    vec3 nTex = texture2D(uNormalTex, vTextureCoord).rgb;
+                    nTex = nTex * 2.0 - 1.0;   
+                    
+                    normal = normalize(vTBN * nTex);
+                }
+                
+                if (debugMode) {
+                    vec3 result = normal + vec3(0.2, 0.2, 0.2);
+                    gl_FragColor = vec4(result, 1.0);
+                    return;
+                }
+
+                vec3 result = vec3(0.0, 0.0, 0.0);
+            
+
+                for(int i = 0; i < N_LIGHTS; i++) {
+                    if(uLightIsDirectional[i]){
+                        result += CalcDirLight(uLightColor[i], uLightPos[i], normal, tex);    
+                    }
+                    else {
+                        result += CalcPointLight(uLightColor[i], uLightPos[i], uLightConst[i], normal, tex);    
+
+                    }
+                }
+
+                if (usarEmissiveMap) {
+                    vec3 texEm = texture2D(uEmissiveTex, vTextureCoord).rgb;
+                    result += texEm;        
+                }
+
+                if (usarTextura) {
+                    result += uAmbientColor * vec3(tex);        
+                    gl_FragColor = vec4(result, 1.0);
+                    return;
+                }
+
+
+                result += uAmbientColor * .5;        
+                gl_FragColor = vec4(result, 1.0);
+            }
+        </script>
+
+        <script id="shader-vst" type="x-shader/x-vertex">
+                    precision highp float;
+        
+                    attribute vec3 aVertexPosition;
+                    attribute vec3 aVertexNormal;
+                    attribute vec3 aVertexTan;
+                    attribute vec3 aVertexBin;
+        
+                    attribute vec2 aTextureCoord;
+        
+                    uniform mat4 modelMatrix;            
+                    uniform mat4 viewMatrix;
+                    uniform mat4 projMatrix;
+                    
+                    uniform mat4 normalMatrix;
+        
+                    uniform vec3 uCamPos;
+        
+                    varying vec3 vNormal;    
+                    varying mat3 vTBN;    
+        
+                    varying vec3 vPosWorld;  
+                    varying vec3 vCamPosWorld;
+        
+        
+                    varying vec2 vTextureCoord;
+        
+        
+                    void main(void) {
+                        gl_Position = projMatrix * viewMatrix * modelMatrix * vec4(aVertexPosition, 1.0);
+        
+                        vPosWorld=(modelMatrix*vec4(aVertexPosition,1.0)).xyz;    
+                        vCamPosWorld=(modelMatrix*vec4(uCamPos,1.0)).xyz;   
+                        
+                        vNormal= (normalMatrix*vec4(normalize(aVertexNormal),1.0)).xyz;     
+                        
+                        vec3 t = (normalMatrix*vec4(normalize(aVertexTan),1.0)).xyz;     
+        
+                        vec3 b = (normalMatrix*vec4(normalize(aVertexBin),1.0)).xyz;     
+                        vTBN = mat3(t, b, vNormal);
+
+                        if(vPosWorld[0] != -999999.0) {
+                            vTextureCoord = vec2(vPosWorld[0]/5.0, vPosWorld[2]/5.0);
+                        }
+                        else {
+                            vTextureCoord = aTextureCoord;
+                        }    
+                    }
+                </script>
+                
+        <script id="shader-fst" type="x-shader/x-fragment">
+            #define N_LIGHTS 4 
+            
+            precision highp float;
+
+            varying vec3 vNormal;
+            varying vec3 vPosWorld;
+            varying vec3 vCamPosWorld;
+            varying mat3 vTBN;    
+            
+            varying vec2 vTextureCoord;
+            uniform sampler2D uLavaTex;
+            uniform sampler2D uLavaNmlTex;
+            uniform sampler2D uLavaEmiTex;
+            
+            uniform sampler2D uRocaTex;
+            uniform sampler2D uRocaNmlTex;
+            uniform sampler2D uRocaEmiTex;
+
+            uniform sampler2D uDiffTex;
+            uniform sampler2D uNmlTex;
+            uniform sampler2D uEmiTex;
+
+            uniform vec3 uAmbientColor;	    
+
+            uniform vec3 uLightColor[N_LIGHTS];
+            uniform vec3 uLightPos[N_LIGHTS];
+            uniform vec3 uLightConst[N_LIGHTS];
+            uniform bool uLightIsDirectional[N_LIGHTS];
+
+            uniform bool usarTextura;
+            uniform bool usarNormalMap;
+            uniform bool usarEmissiveMap;
+            uniform bool difuminarTerreno;
+
+            uniform bool debugMode;
+
+            // Perlin Noise						
+						
+            vec3 mod289(vec3 x)
+            {
+                return x - floor(x * (1.0 / 289.0)) * 289.0;
+            }
+
+            vec4 mod289(vec4 x)
+            {
+                return x - floor(x * (1.0 / 289.0)) * 289.0;
+            }
+
+            vec4 permute(vec4 x)
+            {
+                return mod289(((x*34.0)+1.0)*x);
+            }
+
+            vec4 taylorInvSqrt(vec4 r)
+            {
+                return 1.79284291400159 - 0.85373472095314 * r;
+            }
+
+            vec3 fade(vec3 t) {
+                return t*t*t*(t*(t*6.0-15.0)+10.0);
+            }
+
+            // Classic Perlin noise
+            float cnoise(vec3 P)
+            {
+                vec3 Pi0 = floor(P); // Integer part for indexing
+                vec3 Pi1 = Pi0 + vec3(1.0); // Integer part + 1
+                Pi0 = mod289(Pi0);
+                Pi1 = mod289(Pi1);
+                vec3 Pf0 = fract(P); // Fractional part for interpolation
+                vec3 Pf1 = Pf0 - vec3(1.0); // Fractional part - 1.0
+                vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);
+                vec4 iy = vec4(Pi0.yy, Pi1.yy);
+                vec4 iz0 = Pi0.zzzz;
+                vec4 iz1 = Pi1.zzzz;
+
+                vec4 ixy = permute(permute(ix) + iy);
+                vec4 ixy0 = permute(ixy + iz0);
+                vec4 ixy1 = permute(ixy + iz1);
+
+                vec4 gx0 = ixy0 * (1.0 / 7.0);
+                vec4 gy0 = fract(floor(gx0) * (1.0 / 7.0)) - 0.5;
+                gx0 = fract(gx0);
+                vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);
+                vec4 sz0 = step(gz0, vec4(0.0));
+                gx0 -= sz0 * (step(0.0, gx0) - 0.5);
+                gy0 -= sz0 * (step(0.0, gy0) - 0.5);
+
+                vec4 gx1 = ixy1 * (1.0 / 7.0);
+                vec4 gy1 = fract(floor(gx1) * (1.0 / 7.0)) - 0.5;
+                gx1 = fract(gx1);
+                vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);
+                vec4 sz1 = step(gz1, vec4(0.0));
+                gx1 -= sz1 * (step(0.0, gx1) - 0.5);
+                gy1 -= sz1 * (step(0.0, gy1) - 0.5);
+
+                vec3 g000 = vec3(gx0.x,gy0.x,gz0.x);
+                vec3 g100 = vec3(gx0.y,gy0.y,gz0.y);
+                vec3 g010 = vec3(gx0.z,gy0.z,gz0.z);
+                vec3 g110 = vec3(gx0.w,gy0.w,gz0.w);
+                vec3 g001 = vec3(gx1.x,gy1.x,gz1.x);
+                vec3 g101 = vec3(gx1.y,gy1.y,gz1.y);
+                vec3 g011 = vec3(gx1.z,gy1.z,gz1.z);
+                vec3 g111 = vec3(gx1.w,gy1.w,gz1.w);
+
+                vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));
+                g000 *= norm0.x;
+                g010 *= norm0.y;
+                g100 *= norm0.z;
+                g110 *= norm0.w;
+                vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));
+                g001 *= norm1.x;
+                g011 *= norm1.y;
+                g101 *= norm1.z;
+                g111 *= norm1.w;
+
+                float n000 = dot(g000, Pf0);
+                float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));
+                float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));
+                float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));
+                float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));
+                float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));
+                float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));
+                float n111 = dot(g111, Pf1);
+
+                vec3 fade_xyz = fade(Pf0);
+                vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);
+                vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
+                float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x); 
+                return 2.2 * n_xyz;
+            }
 
             vec3 CalcDirLight(vec3 lightColor, vec3 dir, vec3 normal, vec3 tex) {
                 float shininessVal = 100.0;
@@ -128,10 +407,10 @@
                 }
 
                 return  (diff * lightColor * tex + 
-                            .5 *tex * specular * lightColor);        
+                            .45 * tex * specular * lightColor);        
             
             }  
-
+        
             vec3 CalcPointLight(vec3 lightColor, vec3 pos, vec3 coeff, vec3 normal, vec3 tex) {
                 float shininessVal = 100.0;
                 
@@ -152,24 +431,69 @@
                 float distance = length(pos - vPosWorld);
                 
                 float attenuation = 1.0 / (coeff[0] + coeff[1] * distance + 
-  			     coeff[2] * (distance * distance));
+                    coeff[2] * (distance * distance));
 
                 return  (diff * lightColor * tex * attenuation + 
-                            0.5 * tex * specular * lightColor * attenuation);        
+                            0.3 * tex * specular * lightColor * attenuation);        
 
             }  
 
             void main(void) {
+                vec3 tex = vec3(0, 0, 0); 
+                vec3 normalTex = vec3(0, 0, 0); 
+                vec3 emiTex = vec3(0, 0, 0); 
                 
-                vec3 tex = texture2D(uDiffTex, vTextureCoord).rgb;
+                float scaleRoca = 1.0;
+                float scaleLava = 1.0;
+
+                if (difuminarTerreno){
+                    float noise1=smoothstep(0.0,0.3,cnoise(vPosWorld*0.17));
+                    float mixLavaRoca=noise1*smoothstep(0.0,1.0,1.0);
+
+                    vec4 roca=texture2D(uRocaTex, vTextureCoord*scaleRoca);
+                    vec4 lava=texture2D(uLavaTex, vTextureCoord*scaleLava);
+
+                    vec3 colorTerreno=mix(lava.xyz,roca.xyz,mixLavaRoca);
+                    tex = colorTerreno;
+                
+
+                    if (usarNormalMap) {
+                        vec4 rocaNml=texture2D(uRocaNmlTex, vTextureCoord*  scaleRoca);                    
+                        vec4 lavaNml=texture2D(uLavaNmlTex,         vTextureCoord*scaleLava);     
+                        
+                        vec3 normalTerreno=mix(lavaNml.xyz,rocaNml.xyz,mixLavaRoca);
+
+                        normalTex = normalTerreno;
+                    }   
+
+                    if (usarEmissiveMap) {
+                        vec4 lavaEmi=texture2D(uLavaEmiTex, vTextureCoord* scaleRoca) * .8;
+                        vec4 rocaEmi=texture2D(uRocaEmiTex, vTextureCoord * scaleLava) * .8;
+
+                        vec3 emiTerreno=mix(lavaEmi.xyz,rocaEmi.xyz,mixLavaRoca);
+
+                        emiTex = emiTerreno;        
+                    }
+                } else {
+                    tex = texture2D(uDiffTex, vTextureCoord*scaleRoca).rgb;
+
+                    if (usarNormalMap){
+                        normalTex = texture2D(uNmlTex, vTextureCoord*scaleRoca).rgb;
+                    }
+                
+                    if (usarEmissiveMap){
+                        emiTex = texture2D(uEmiTex, vTextureCoord*scaleRoca).rgb;
+
+                    }
+                }
+                
 
                 vec3 normal = vNormal;
-
+                
                 if (usarNormalMap) {
-                    vec3 nTex = texture2D(uNormalTex, vTextureCoord).rgb;
-                    nTex = nTex * 2.0 - 1.0;   
-                    
-                    normal = normalize(vTBN * nTex);
+                    normalTex = normalTex * 2.0 - 1.0;   
+
+                    normal = normalize(vTBN * normalTex);
                 }
                 
                 if (debugMode) {
@@ -178,8 +502,8 @@
                     return;
                 }
                 
+
                 vec3 result = vec3(0.0, 0.0, 0.0);
-            
 
                 for(int i = 0; i < N_LIGHTS; i++) {
                     if(uLightIsDirectional[i]){
@@ -187,26 +511,18 @@
                     }
                     else {
                         result += CalcPointLight(uLightColor[i], uLightPos[i], uLightConst[i], normal, tex);    
-
                     }
                 }
 
                 if (usarEmissiveMap) {
-                    vec3 texEm = texture2D(uEmissiveTex, vTextureCoord).rgb;
-                    result += texEm;        
+                    result += emiTex;        
                 }
 
-                if (usarTextura) {
-                    result += uAmbientColor * tex;        
-                    gl_FragColor = vec4(result, 1.0);
-                    return;
-                }
-
-
-                result += uAmbientColor * .5;        
+                result += uAmbientColor * tex;        
                 gl_FragColor = vec4(result, 1.0);
+                return;
             }
         </script>
-        
+
     </body>
 </html>

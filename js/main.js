@@ -57,9 +57,7 @@ function disparar_catapulta() {
 		
 		anterior = actual;
 		actual = mCatapulta.get_municion_pos();
-		
-		setupVertexShaderMatrix(actual);
-		
+
 		draw_scene();		
 	}
 	
@@ -123,28 +121,36 @@ function draw_scene() {
 	vec3.fromValues(0, 1, 0)
 	);
 
-	var camPosUniform = gl.getUniformLocation(glProgram, "uCamPos");
-
-	gl.uniform3f(camPosUniform, mCamara.pos[0], mCamara.pos[1], mCamara.pos[2]);
-
+	
 	let m = mat4.create;
 	mat4.identity(m, m);
 	
 	mCastillo.setProgram(glProgram);
-	mTerreno.setProgram(glProgram);
+	mTerreno.setProgram(glProgramTerreno);
 	mCatapulta.setProgram(glProgram);
 	
 	var munPos = mCatapulta.get_municion_pos();
 	if(disparo != null && actualDis != null){
 		munPos =  actualDis;
 	}
-
+	
 	var antPos = mCastillo.get_antorcha_pos();
 	
 	if(!lavaEmisiva)
-		mTerreno.apagarLava();
+	mTerreno.apagarLava();
+	
+	
+	gl.useProgram(glProgram);
 	
 	setupVertexShaderMatrix(munPos, antPos.pos1, antPos.pos2);
+	var camPosUniform = gl.getUniformLocation(glProgram, "uCamPos");
+	gl.uniform3f(camPosUniform, mCamara.pos[0], mCamara.pos[1], mCamara.pos[2]);
+	
+	gl.useProgram(glProgramTerreno);
+
+	setupVertexShaderMatrixTerreno(munPos, antPos.pos1, antPos.pos2);
+	var camPosUniformT = gl.getUniformLocation(glProgramTerreno, "uCamPos");
+	gl.uniform3f(camPosUniformT, mCamara.pos[0], mCamara.pos[1], mCamara.pos[2]);
 	
 	if (DIBUJAR_TERRENO)
 		mTerreno.dibujar(m);

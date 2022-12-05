@@ -401,6 +401,9 @@ function generar_superficie_barrido_variable(curva, figuras,
   	let indices = [];
  	let pos = [];
   	let nrm = [];
+	let tan = [];
+	let bin = [];
+
 	let uv = [];
 
 	var segLongitud = curva.matricesPuntos.length;
@@ -432,14 +435,28 @@ function generar_superficie_barrido_variable(curva, figuras,
 			nrm.push(n[1]);
 			nrm.push(n[2]);
 			
-			if(j>0)
-				acumLength += vec3.dist(figuras[i].puntos[j], figuras[i].puntos[j-1]);
 
-			let cU = repeatU*(acumLength/(totalLength));
-			let cV = repeatV;
+			let cU = repeatU*(acumLength/(totalLength))
+			let cV = repeatV*(i/curva.matricesPuntos.length)
+			
+			if(j>0)
+				acumLength += vec3.dist(figuras[i].puntos[j], figuras[i].puntos[j-1])
 
 			uv.push(cU);
 			uv.push(cV);
+			
+			let t = curva.tangentes[i];
+
+			tan.push(t[0]);
+			tan.push(t[1]);
+			tan.push(t[2]);
+
+			let b = vec3.create();
+			vec3.cross(b, vec3.fromValues(t[0], t[1], t[2]), n);
+
+			bin.push(b[0]);
+			bin.push(b[1]);
+			bin.push(b[2]);
 		}
 
 		acumLength = 0;	
@@ -457,35 +474,6 @@ function generar_superficie_barrido_variable(curva, figuras,
 			indices.push((i + 1) * segRadiales + j + 1);
         	}
    	 }
-	
-	if(false){
-		for (var j=0;j<segRadiales;j++){
-			let int = vec3.fromValues(0, 0, 0)
-			vec3.transformMat4(int, int, curva.matricesPuntos[segLongitud-1]);
-
-			var n = vec3.fromValues(0, 0, 1);
-			vec3.transformMat4(n, n, curva.matricesNormales[segLongitud-1]);		
-			vec3.normalize(n, n);
-				
-			pos.push(int[0]);
-			pos.push(int[1]);
-			pos.push(int[2]);
-
-			nrm.push(n[0]);
-			nrm.push(n[1]);
-			nrm.push(n[2]);					
-		}
-
-		for (let j = 0; j < segRadiales - 1; j++) {
-			indices.push((segLongitud-1)* segRadiales + j);
-			indices.push((segLongitud-1+ 1) * segRadiales + j);
-			indices.push((segLongitud-1)* segRadiales + j + 1);
-
-			indices.push((segLongitud-1)* segRadiales + j + 1);
-			indices.push((segLongitud-1+ 1) * segRadiales + j);
-			indices.push((segLongitud-1+ 1) * segRadiales + j + 1);
-		}
-	}
 
 
   // Creación e Inicialización de los buffers
@@ -504,6 +492,14 @@ function generar_superficie_barrido_variable(curva, figuras,
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 
+var tanBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, tanBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(tan), gl.STATIC_DRAW);
+	
+    var binBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, binBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(bin), gl.STATIC_DRAW);
+
     var uvBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uv), gl.STATIC_DRAW);
@@ -513,6 +509,8 @@ function generar_superficie_barrido_variable(curva, figuras,
         vertexBuffer,
         normalBuffer,
         indexBuffer,
+	tanBuffer,
+	binBuffer,
 	uvBuffer
     }
 }

@@ -18,7 +18,8 @@ class Terreno extends Objeto {
 
 		isla.setGeometria(geom);
 		isla.crearTextura("res/ground.png", "uDiffTex");
-		isla.crearTextura("res/ground-nml.png", "uNormalTex");
+		isla.crearTextura("res/ground-nml.png", "uNmlTex");
+
 		isla.usarNormalMap = true;
 
 		isla.setTextureBuffer(geom.uvBuffer);
@@ -38,11 +39,18 @@ class Terreno extends Objeto {
 		tierra.setGeometria(geom);
 		tierra.setTextureBuffer(geom.uvBuffer);
 
-		tierra.crearTextura("res/lava.png", "uDiffTex");
-		tierra.crearTextura("res/lava-nml.png", "uNormalTex");
-		tierra.crearTextura("res/lava-emissive.png", "uEmissiveTex");
+		tierra.crearTextura("res/lava.png", "uLavaTex");
+		tierra.crearTextura("res/lava-nml.png", "uLavaNmlTex");
+		tierra.crearTextura("res/lava-emissive.png", "uLavaEmiTex");
+		
+		tierra.crearTextura("res/ground.png", "uRocaTex");
+		tierra.crearTextura("res/ground-nml.png", "uRocaNmlTex");
+		tierra.crearTextura("res/ground-emissive.png", "uRocaEmiTex");
+
 		tierra.usarNormalMap = true;
 		tierra.usarEmissiveMap = true;
+		tierra.difuminarTerreno = true;
+		
 
 		this.agregarHijo(tierra);
 
@@ -51,10 +59,12 @@ class Terreno extends Objeto {
 		geom = generar_plano(rMundo+20, rMundo+20, 5, 5);
 
 		plano.crearTextura("res/lava2.png", "uDiffTex");
-		plano.crearTextura("res/lava2-nml.png", "uNormalTex");
-		plano.crearTextura("res/lava2-emissive.png", "uEmissiveTex");
+		plano.crearTextura("res/lava2-nml.png", "uNmlTex");
+		plano.crearTextura("res/lava2-emissive.png", "uEmiTex");
+	
 		plano.usarNormalMap = true;
 		plano.usarEmissiveMap = true;
+
 
 
 		plano.setGeometria(geom);

@@ -94,7 +94,9 @@ class Objeto {
 
 		uBool = gl.getUniformLocation(this.Program, "usarEmissiveMap");
 		gl.uniform1i(uBool, this.usarEmissiveMap);
-		
+
+		uBool = gl.getUniformLocation(this.Program, "difuminarTerreno");
+		gl.uniform1i(uBool, this.difuminarTerreno);
 	}
 
 	dibujar(matPadre) {
@@ -110,8 +112,8 @@ class Objeto {
 
 		var normalMatrixUniform  = gl.getUniformLocation(this.Program, "normalMatrix");
 
-		mat4.invert(this.matriz_normales, this.matriz_modelado);
-		mat4.transpose(this.matriz_normales, this.matriz_normales); 
+		mat4.invert(this.matriz_normales, m);
+		mat4.transpose(this.matriz_normales, m); 
 	
 		gl.uniformMatrix4fv(normalMatrixUniform, false, this.matriz_normales);
 

@@ -266,9 +266,7 @@ class Castillo extends Objeto{
 		p.setGeometria(geom);
 		p.setTextureBuffer(geom.uvBuffer);
 		
-		p.crearTextura("res/castle.png", "uDiffTex");
-		p.crearTextura("res/castle-nml.png", "uNormalTex");
-		p.usarNormalMap = true;
+		p.crearTextura("res/roof.png", "uDiffTex");
 
 		return p;
 	}
@@ -306,7 +304,7 @@ class Castillo extends Objeto{
 		
 		v.setRotacion(0, 1, 0, Math.PI);
 		
-		v.setColor(40, 3, 3);
+		v.crearTextura("res/window.png", "uDiffTex");
 
 		return v;
 	}
@@ -349,7 +347,7 @@ class Castillo extends Objeto{
 
 		path.matricesNormales.pop();
 		path.matricesPuntos.pop();
-		let geom = generar_superficie_barrido(path, shape, false, 4, lados*2);
+		let geom = generar_superficie_barrido(path, shape, false, 2, lados*2);
 
 
 		let m = new Objeto()
@@ -583,7 +581,7 @@ class Castillo extends Objeto{
 		e.setEscala(.2, .2, .2);
 
 		let e1 = new Objeto();
-		e1.setGeometria(geom);
+		//e1.setGeometria(geom);
 		e1.setPosicion(p2[0] + .3, p2[1] + 2, p2[2]);
 		e1.setColor(50, 50, 50);
 		e1.setTextureBuffer(geom.uvBuffer)
