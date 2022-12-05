@@ -44,7 +44,7 @@ function initWebGL() {
 function setupWebGL() {
 		gl.enable(gl.DEPTH_TEST);
 		//set the clear color
-		gl.clearColor(72/255, 136/255, 240/255, 1.0);
+		gl.clearColor(20/255, 25/255, 47/255, 1.0);
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		
 		gl.viewport(0, 0, canvas.width, canvas.height);
@@ -148,7 +148,7 @@ function setupVertexShaderMatrix(munPos, antPos1, antPos2) {
 	pos = pos.concat([1.0, 1.0, -0.9], antPos1[0], antPos1[1], antPos1[2], antPos2[0], antPos2[1], antPos2[2], munPos[0], munPos[1], munPos[2]);
 	
 	var coeff = []
-	coeff = coeff.concat([0.0, 0.0, 0.0], [.8, 0.8, 0.7], [.8, 0.4, 0.7],  [.1, 0.4, 0.1])
+	coeff = coeff.concat([0.0, 0.0, 0.0], [.8, 0.1, 1], [.8, 0.1, 1],  [.1, 0.4, 0.1])
 
 	var isDirectional = [1, 0, 0, 0];
 

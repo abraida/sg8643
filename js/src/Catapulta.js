@@ -2,9 +2,6 @@ class Catapulta extends Objeto {
 	constructor() {
 		super();
 
-		let m = this.#crear_esfera(.3);
-		this.agregarHijo(m);
-
 		let eje1 = new Objeto();
 		eje1.setPosicion(-2, .1, .18);
 		eje1.setRotacion(1, 0, 0, Math.PI/2);
@@ -130,7 +127,7 @@ class Catapulta extends Objeto {
 		let geom =  generar_superficie_barrido(path, shape);	
 		
 		let cilindro = new Objeto();
-		cilindro.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		cilindro.setGeometria(geom);
 		cilindro.setTextureBuffer(geom.uvBuffer);
 		cilindro.setColor(43, 28, 11);
 		cilindro.setEscala(1, largo, 1);
@@ -149,7 +146,7 @@ class Catapulta extends Objeto {
 		let geom = generar_superficie_barrido(path, shape, true);	
 		
 		let cuad = new Objeto();
-		cuad.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		cuad.setGeometria(geom);
 		cuad.setTextureBuffer(geom.uvBuffer);
 		cuad.setColor(43, 28, 11);
 
@@ -161,7 +158,7 @@ class Catapulta extends Objeto {
 	#crear_esfera(radio){
 		let geom = generar_esfera();
 		let e = new Objeto();
-		e.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		e.setGeometria(geom);
 		e.setColor(50, 50, 50);
 		e.setTextureBuffer(geom.uvBuffer)
 		e.setEscala(radio, radio, radio);
@@ -184,7 +181,7 @@ class Catapulta extends Objeto {
 		let geom = generar_superficie_barrido_variable(path, shapes, false);	
 		
 		let cuad = new Objeto();
-		cuad.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		cuad.setGeometria(geom);
 		cuad.setTextureBuffer(geom.uvBuffer);
 		cuad.setColor(43, 28, 11);
 		cuad.setEscala(ancho, alto, largo);
@@ -201,16 +198,18 @@ class Catapulta extends Objeto {
 		this.municion.setGeometria(null, null, null);
 		
 		let d = new Objeto();
+		
 		let geom = generar_esfera();
+		d.setGeometria(geom);
+
 		d.setColor(50, 50, 50);
 		d.setTextureBuffer(geom.uvBuffer)
-		d.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
 		return d;
 	}
 
 	restaurar_municion(){
 		let geom = generar_esfera();
-		this.municion.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		this.municion.setGeometria(geom);
 		this.municion.setEscala(.3, .3, .3);
 	}
 

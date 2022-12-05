@@ -20,12 +20,11 @@ parameters = {
 }
 
 lights = {
-	amb: "#242437",
-	diff: "#dcdcdc",
-	spec: "#000000",
-	ant1: "#ffbc7e",
-	ant2: "#ffbc7e",
-	cat: "#ffbc7e",
+	amb: "#1a0909",
+	diff: "#333333",
+	ant1: "#fdfdfd",
+	ant2: "#fdfdfd",
+	cat: "#a57a4e",
 }
 
 var ambColor = hexToRgb(lights.amb);
@@ -34,8 +33,7 @@ var antColor1 = hexToRgb(lights.ant1);
 var antColor2 = hexToRgb(lights.ant2);
 var catColor = hexToRgb(lights.cat);
 
-
-
+var lavaEmisiva = true;
 
 var disparar = function() {
 	disparar_catapulta();
@@ -176,9 +174,7 @@ function initMenu() {
 	fLight.addColor(lights, "diff").onChange(function() {
 		diffColor = hexToRgb(lights.diff);
 	});
-	fLight.addColor(lights, "spec").onChange(function() {
-		specColor = hexToRgb(lights.spec);
-	});
+
 	fLight.addColor(lights, "ant1").onChange(function() {
 		antColor1 = hexToRgb(lights.ant1);
 	});
@@ -189,6 +185,10 @@ function initMenu() {
 		catColor = hexToRgb(lights.cat);
 	});
 
+	fLight.add(window, 'lavaEmisiva').listen().onChange(function(){
+		setChecked("lavaEmisiva");
+		setup_modelos();	
+	});
 }
 
 function hexToRgb(hex) {

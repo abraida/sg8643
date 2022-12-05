@@ -155,7 +155,9 @@ class Castillo extends Objeto{
 		let p = this.#crear_piso();
 		p.setPosicion(-.25, altoPiso*pisos, -largo-.25);
 		p.setRotacion(1, 0, 0, Math.PI/2);			
-		p.crearTextura("res/wall.png", "uZincTex");
+		p.crearTextura("res/wall.png", "uDiffTex");
+		p.crearTextura("res/wall-nml.png", "uNormalTex");
+		p.usarNormalMap = true;
 			
 		this.edificio.agregarHijo(p);
 
@@ -213,6 +215,7 @@ class Castillo extends Objeto{
 		let r = this.config.rTorre;
 		let a = this.config.altoTorre;
 	
+
 		let c1 = shape_line([-r, 0, 0], [-r, a, 0], 1);
 	
 		let puntos = [
@@ -229,10 +232,16 @@ class Castillo extends Objeto{
 		let path = path_circle(0.001, 10);
 		let geom = generar_superficie_barrido(path, shape, false, 1.5*this.config.pisos, 1);
 		
+
 		let t = new Objeto();
-		t.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
-		t.crearTextura("res/castle.png", "uZincTex");
+		
+		t.setGeometria(geom);
 		t.setTextureBuffer(geom.uvBuffer);
+		
+		t.crearTextura("res/castle.png", "uDiffTex");
+		t.crearTextura("res/castle-nml.png", "uNormalTex");
+		t.usarNormalMap = true;
+
 
 		return t;
 	}
@@ -240,6 +249,8 @@ class Castillo extends Objeto{
 	
 	#crear_punta() {
 		let r = this.config.rTorre + .5;
+
+
 		let puntos = [
 			[-r, 0, 0], [-0.5*r, 2, 0], 
 			[-0.25*r, 3, 0], [0, 5, 0],
@@ -247,54 +258,68 @@ class Castillo extends Objeto{
 		
 		let shape = shape_cubica(puntos, 10);
 		let path = path_circle(0.001, 10);
-		
-		let geom = generar_superficie_barrido(path, shape);	
+		let geom = generar_superficie_barrido(path, shape);
+
+
 		let p = new Objeto();
-		p.setColor(30, 30, 30);
-		p.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+
+		p.setGeometria(geom);
 		p.setTextureBuffer(geom.uvBuffer);
 		
+		p.crearTextura("res/castle.png", "uDiffTex");
+		p.crearTextura("res/castle-nml.png", "uNormalTex");
+		p.usarNormalMap = true;
 
 		return p;
 	}
 	
 	#crear_pared(w) {
-		let p = new Objeto();
 		let geom = generar_plano(w, this.config.altoPiso * this.config.pisos, false, this.config.pisos, 2); 
-		p.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
-		p.crearTextura("res/castle.png", "uZincTex");
+		
+		let p = new Objeto();
+		
+		p.setGeometria(geom);
 		p.setTextureBuffer(geom.uvBuffer);
+		
+		p.crearTextura("res/castle.png", "uDiffTex");
+		p.crearTextura("res/castle-nml.png", "uNormalTex");
+		p.usarNormalMap = true;
+		
 		return p;
 	}
 	#crear_ventana() {
 		let w = this.config.anchoVentanas;
+
 
 		let puntos = [[0, 0, 0], [0, 1.5, 0], [w, 1.5, 0], [w, 0, 0], 
 		[w, 0, 0], [w, 0, 0], [0, 0, 0], [0, 0, 0]];
 		
 		let shape = shape_cubica(puntos, 6);
 		let path = path_line(2, .65);
-	
 		let geom = generar_superficie_barrido(path, shape, true);
+		
+		
 		let v = new Objeto();
 		
-		v.setColor(40, 3, 3);
-		v.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
-		v.setRotacion(0, 1, 0, Math.PI);
+		v.setGeometria(geom);
 		v.setTextureBuffer(geom.uvBuffer);
+		
+		v.setRotacion(0, 1, 0, Math.PI);
+		
+		v.setColor(40, 3, 3);
 
 		return v;
 	}
 
 	#crear_piso() {
+		let geom = generar_plano(this.config.ancho+.5, this.config.largo+.5, 2, 2);	
+		
+		
 		let p = new Objeto();
-
-		let geom = generar_plano(this.config.ancho+.5, this.config.largo+.5);	
-		p.setColor(56, 7, 7);
-
-		p.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
-
+		p.setGeometria(geom);
 		p.setTextureBuffer(geom.uvBuffer);
+
+		p.setColor(56, 7, 7);
 
 		return p		
 	}
@@ -324,12 +349,17 @@ class Castillo extends Objeto{
 
 		path.matricesNormales.pop();
 		path.matricesPuntos.pop();
+		let geom = generar_superficie_barrido(path, shape, false, 4, lados*2);
+
 
 		let m = new Objeto()
-		let geom = generar_superficie_barrido(path, shape, false, 2, lados*2);
-		m.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
-		m.crearTextura("res/wall.png", "uZincTex");
+		
+		m.setGeometria(geom);
 		m.setTextureBuffer(geom.uvBuffer);
+
+		m.crearTextura("res/wall.png", "uDiffTex");
+		m.crearTextura("res/wall-nml.png", "uNormalTex");
+		m.usarNormalMap = true;
 
 		return m;			
 	}
@@ -357,18 +387,22 @@ class Castillo extends Objeto{
 		shape = concatenar(shape, c4);
 	
 		let path = path_circle(0.001, 15);
-	
-		let geom = generar_superficie_barrido(path, shape, false, 1, 1);
+		let geom = generar_superficie_barrido(path, shape, false, 3, 2);
+		
+
 		let t = new Objeto();
-		t.crearTextura("res/wall.png", "uZincTex");
-		t.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		t.setGeometria(geom);
 		t.setTextureBuffer(geom.uvBuffer);		
+		
+		t.crearTextura("res/wall.png", "uDiffTex");
+		t.crearTextura("res/wall-nml.png", "uNormalTex");
+		t.usarNormalMap = true;
+
 		return t;
 	}
 	#crear_muro2() {
 		let h = this.config.altoBalcon;
 		let a = this.config.altoMuro;
-		let lados = this.config.lados;
 
 		let puntos = [
 		[0, 0, 0], [.06*6, .3*a, 0], [.2*6, .6*a, 0], [.2*6, a, 0], 
@@ -408,26 +442,40 @@ class Castillo extends Objeto{
 		let path1 = path_3Dline(p1, p0, 1);
 		let path2 = path_3Dline(p2, p1, 1);
 		let path3 = path_3Dline(p3, p2, 1);
-
-	
-		let m1 = new Objeto()
 		let geom = generar_superficie_barrido(path1, shape);
-		m1.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
-		m1.crearTextura("res/wall.png", "uZincTex");
+		
+		
+		let m1 = new Objeto()
+		
+		m1.setGeometria(geom, this.tanBuffer, this.binBuffer);
 		m1.setTextureBuffer(geom.uvBuffer);
 
-		let m2 = new Objeto()
+		m1.crearTextura("res/wall.png", "uDiffTex");
+		m1.crearTextura("res/wall-nml.png", "uNormalTex");
+		m1.usarNormalMap = true;
+
+
 		geom = generar_superficie_barrido(path2, shape2);
-		m2.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
-		m2.crearTextura("res/wall.png", "uZincTex");
+		let m2 = new Objeto()
+		
+		m2.setGeometria(geom, this.tanBuffer, this.binBuffer);
 		m2.setTextureBuffer(geom.uvBuffer);
 
-		let m3 = new Objeto()
+		m2.crearTextura("res/wall.png", "uDiffTex");
+		m2.crearTextura("res/wall-nml.png", "uNormalTex");
+		m2.usarNormalMap = true;
+
+
 		geom = generar_superficie_barrido(path3, shape);
-		m3.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
-		m3.crearTextura("res/wall.png", "uZincTex");
-		m3.setTextureBuffer(geom.uvBuffer);
+		let m3 = new Objeto()
 		
+		m3.setGeometria(geom, this.tanBuffer, this.binBuffer);
+		m3.setTextureBuffer(geom.uvBuffer);
+
+		m3.crearTextura("res/wall.png", "uDiffTex");
+		m3.crearTextura("res/wall-nml.png", "uNormalTex");
+		m3.usarNormalMap = true;
+
 		return {m1, m2, m3};			
 	}
 
@@ -440,8 +488,10 @@ class Castillo extends Objeto{
 		let r2 = shape_line([0, a, 0], [w, a, 0], 2);
 		let r3 = shape_line([w, a, 0], [w, 0, 0], 2);
 
+
 		let shape = concatenar(r1, r2);
 		shape = concatenar(shape, r3);
+
 	
 		let p1 = vec3.create();
 		vec3.scaleAndAdd(p1, this.posTorreA, this.dir, (this.len - this.config.largoPuerta) / 2);
@@ -457,18 +507,28 @@ class Castillo extends Objeto{
 
 		let path1 = path_3Dline(p1, p0, 1);
 		let path2 = path_3Dline(p3, p2, 1);
+		let geom = generar_superficie_barrido(path1, shape, true, 2, .5);
+
 
 		let m1 = new Objeto()
-		let geom = generar_superficie_barrido(path1, shape, true, 2, .5);
-		m1.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
-		m1.crearTextura("res/wall.png", "uZincTex");
+		
+		m1.setGeometria(geom, this.tanBuffer, this.binBuffer);
 		m1.setTextureBuffer(geom.uvBuffer);
 
-		let m2 = new Objeto()
+		m1.crearTextura("res/wall.png", "uDiffTex");
+		m1.crearTextura("res/wall-nml.png", "uNormalTex");
+		m1.usarNormalMap = true;
+
+
 		geom = generar_superficie_barrido(path2, shape, true, 2, .5);
-		m2.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
-		m2.crearTextura("res/wall.png", "uZincTex");
+		let m2 = new Objeto()
+		
+		m2.setGeometria(geom, this.tanBuffer, this.binBuffer);
 		m2.setTextureBuffer(geom.uvBuffer);
+
+		m2.crearTextura("res/wall.png", "uDiffTex");
+		m2.crearTextura("res/wall-nml.png", "uNormalTex");
+		m2.usarNormalMap = true;
 
 		return {m1, m2};	
 	}
@@ -497,8 +557,10 @@ class Castillo extends Objeto{
 		p.setPosicion(-1.5, 0, 1);
 
 		let geom = generar_superficie_barrido(path1, shape, false, 2, 2);
-		p.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
-		p.crearTextura("res/gate.png", "uZincTex");
+		p.setGeometria(geom);
+		p.crearTextura("res/gate.png", "uDiffTex");
+		p.crearTextura("res/gate-nml.png", "uNormalTex");
+		p.usarNormalMap = true;
 
 		p.setTextureBuffer(geom.uvBuffer);
 
@@ -514,14 +576,14 @@ class Castillo extends Objeto{
 
 		let geom = generar_esfera();
 		let e = new Objeto();
-		e.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		e.setGeometria(geom);
 		e.setPosicion(p1[0] + .3, p1[1] + 2, p1[2]);
 		e.setColor(50, 50, 50);
 		e.setTextureBuffer(geom.uvBuffer)
 		e.setEscala(.2, .2, .2);
 
 		let e1 = new Objeto();
-		e1.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		e1.setGeometria(geom);
 		e1.setPosicion(p2[0] + .3, p2[1] + 2, p2[2]);
 		e1.setColor(50, 50, 50);
 		e1.setTextureBuffer(geom.uvBuffer)

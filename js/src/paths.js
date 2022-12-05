@@ -91,6 +91,8 @@ function path_circle(radio, segmentos, a = 0, b= 2*Math.PI) {
 	let curva = new Object();
   	curva.matricesPuntos = [];
   	curva.matricesNormales = [];
+  	curva.tangentes = [];
+
 
 	let deltaU = 1/segmentos * (b-a);
 
@@ -121,6 +123,7 @@ function path_circle(radio, segmentos, a = 0, b= 2*Math.PI) {
 
 		curva.matricesPuntos.push(m1);
 		curva.matricesNormales.push(m2);
+		curva.tangentes.push(tan);
 	}
 
 	return curva;
@@ -130,6 +133,7 @@ function path_line(segmentos, longitud) {
 	let curva = new Object();
   	curva.matricesPuntos = [];
   	curva.matricesNormales = [];
+  	curva.tangentes = [];
 
 	let deltaU = 1*longitud/segmentos;
 
@@ -149,6 +153,7 @@ function path_line(segmentos, longitud) {
 
 		curva.matricesPuntos.push(m1);
 		curva.matricesNormales.push(m2);
+		curva.tangentes.push(tan);
 	}
 
 	return curva;	
@@ -158,6 +163,7 @@ function path_3Dline(p0, p1, segs) {
 	let curva = new Object();
   	curva.matricesPuntos = [];
   	curva.matricesNormales = [];
+  	curva.tangentes = [];
 
 	let deltaU = 1/segs;
 
@@ -186,6 +192,8 @@ function path_3Dline(p0, p1, segs) {
 
 		curva.matricesPuntos.push(m1);
 		curva.matricesNormales.push(m2);
+  		curva.tangentes.push(tan);
+	
 	}
 
 	return curva;	

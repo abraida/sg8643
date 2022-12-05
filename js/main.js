@@ -141,14 +141,17 @@ function draw_scene() {
 
 	var antPos = mCastillo.get_antorcha_pos();
 	
+	if(!lavaEmisiva)
+		mTerreno.apagarLava();
+	
 	setupVertexShaderMatrix(munPos, antPos.pos1, antPos.pos2);
 	
+	if (DIBUJAR_TERRENO)
+		mTerreno.dibujar(m);
 	if(DIBUJAR_CASTILLO)
 		mCastillo.dibujar(m);
 	if(DIBUJAR_CATAPULTA)
 		mCatapulta.dibujar(m);
-	if (DIBUJAR_TERRENO)
-		mTerreno.dibujar(m);
 
 	if(disparo != null && actualDis != null){
 		disparo.dibujar(m);

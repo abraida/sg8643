@@ -6,6 +6,9 @@ class Objeto {
 		this.vertexBuffer = null;
 		this.indexBuffer = null;
 		this.normalBuffer = null;
+		this.tanBuffer = null;
+		this.binBuffer = null;
+
 
 		this.textureBuffer = null;
 
@@ -17,9 +20,12 @@ class Objeto {
 		this.escala = vec3.fromValues(1, 1, 1);
 		this.alpha = 0;
 
+		this.usarNormalMap = false;
+		this.usarEmissiveMap = false;
 
-		this.texture = null;
-		this.texName = null;
+
+		this.textures = [];
+		this.texNames = [];
 		this.color = [100, 100, 100];
 		
 		this.hijos = [];
@@ -42,8 +48,8 @@ class Objeto {
 
 		t.image.onload = function () {
 			gl.bindTexture(gl.TEXTURE_2D, t);
-			gl.texParameterf(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.MIRRORED_REPEAT); 
-			gl.texParameterf(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.MIRRORED_REPEAT);
+			gl.texParameterf(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT); 
+			gl.texParameterf(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.REPEAT);
 			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, t.image);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -52,8 +58,8 @@ class Objeto {
 
 		}
 
-		this.texture = t;
-		this.texName = name;
+		this.textures.push(t);
+		this.texNames.push(name);
 	}
 
 	actualizarMatrizModelado() { 
@@ -79,6 +85,18 @@ class Objeto {
 		
 	}
 
+	setUniformBools() {
+		var uBool = gl.getUniformLocation(this.Program, "usarTextura");
+		gl.uniform1i(uBool, Boolean(this.textureBuffer));
+
+		uBool = gl.getUniformLocation(this.Program, "usarNormalMap");
+		gl.uniform1i(uBool, this.usarNormalMap);
+
+		uBool = gl.getUniformLocation(this.Program, "usarEmissiveMap");
+		gl.uniform1i(uBool, this.usarEmissiveMap);
+		
+	}
+
 	dibujar(matPadre) {
 		gl.useProgram(this.Program);
 
@@ -97,49 +115,64 @@ class Objeto {
 	
 		gl.uniformMatrix4fv(normalMatrixUniform, false, this.matriz_normales);
 
-		if(!this.texture) {
-			this.texture = gl.createTexture();
-			gl.bindTexture(gl.TEXTURE_2D, this.texture);
+
+		this.setUniformBools();
+
+		if(this.textures.length == 0) {
+			let t = gl.createTexture();
+			gl.bindTexture(gl.TEXTURE_2D, t);
  
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 1, 1, 0, gl.RGB, gl.UNSIGNED_BYTE,
 			new Uint8Array([
 				this.color[0], 
 				this.color[1], 
 				this.color[2]]));	
+			this.textures.push(t);
+			this.texNames.push("uDiffTex");
+
 		}
 
 		if (this.textureBuffer) {
-			var uTextBool = gl.getUniformLocation(this.Program, "usarTextura");
-            		gl.uniform1i(uTextBool, true);
-
 			vertexTextureAttribute = gl.getAttribLocation(this.Program, "aTextureCoord");
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
 			
 			gl.vertexAttribPointer(vertexTextureAttribute, 2, gl.FLOAT, false, 0, 0);
 			
 			gl.enableVertexAttribArray(vertexTextureAttribute);
-			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+			
+			for (let i = 0; i < this.textures.length; i++){
 
-			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D, this.texture);
+				gl.activeTexture(gl.TEXTURE0 + i);
+				gl.bindTexture(gl.TEXTURE_2D, this.textures[i]);
+	
+				var uSampler = gl.getUniformLocation(this.Program, this.texNames[i]);
+	
+				gl.uniform1i(uSampler, i);
 
-			var uSampler = gl.getUniformLocation(this.Program, this.texName);
+			}
+		}
 
-			gl.uniform1i(uSampler, 0);
-		} else {
-			var uTextBool = gl.getUniformLocation(this.Program, "usarTextura");
-            		gl.uniform1i(uTextBool, false);
+		if(this.tanBuffer && this.binBuffer) {
+			let vertexTanAttribute = gl.getAttribLocation(this.Program, "aVertexTan");
+			gl.enableVertexAttribArray(vertexTanAttribute);
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.tanBuffer);
+			gl.vertexAttribPointer(vertexTanAttribute, 3, gl.FLOAT, false, 0, 0);
+
+			let vertexBinAttribute = gl.getAttribLocation(this.Program, "aVertexBin");
+			gl.enableVertexAttribArray(vertexBinAttribute);
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.binBuffer);
+			gl.vertexAttribPointer(vertexBinAttribute, 3, gl.FLOAT, false, 0, 0);
 		}
 
 		if (this.vertexBuffer && this.indexBuffer && this.normalBuffer){
 
-			vertexPositionAttribute = gl.getAttribLocation(this.Program, "aVertexPosition");
+			let vertexPositionAttribute = gl.getAttribLocation(this.Program, "aVertexPosition");
 			gl.enableVertexAttribArray(vertexPositionAttribute);
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
 			gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
 
 
-			vertexNormalAttribute = gl.getAttribLocation(this.Program, "aVertexNormal");
+			let vertexNormalAttribute = gl.getAttribLocation(this.Program, "aVertexNormal");
 			gl.enableVertexAttribArray(vertexNormalAttribute);
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
 			gl.vertexAttribPointer(vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
@@ -149,15 +182,32 @@ class Objeto {
 			gl.drawElements( gl.TRIANGLES, this.indexBuffer.number_vertex_point, gl.UNSIGNED_SHORT, 0);
 		}
 
+
+
+		
 		for (let i = 0; i < this.hijos.length; i++) 
 			this.hijos[i].dibujar(m);
 
 	};
 
-	setGeometria(vertexBuffer, indexBuffer, normalBuffer) {
-		this.vertexBuffer = vertexBuffer;
-		this.indexBuffer = indexBuffer;
-		this.normalBuffer = normalBuffer;
+	setGeometria(g) {
+		if (!g) {
+			this.vertexBuffer = null;
+			this.indexBuffer = null;
+			this.normalBuffer = null;
+			this.tanBuffer = null;
+			this.binBuffer = null;
+			return;
+		}
+		this.vertexBuffer = g.vertexBuffer;
+		this.indexBuffer = g.indexBuffer;
+		this.normalBuffer = g.normalBuffer;
+
+		if (g.tanBuffer)
+			this.tanBuffer = g.tanBuffer;
+		
+		if (g.binBuffer)
+			this.binBuffer = g.binBuffer;
 
 	}
 

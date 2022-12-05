@@ -5,6 +5,8 @@ function generar_esfera() {
 	var pos=[];
 	var normal=[];
 	var uv=[];
+	var tan=[];
+	var bin=[];
 
 	var r=1;
 	var longitudeBands=128;
@@ -38,6 +40,15 @@ function generar_esfera() {
 
 	    uv.push(u);
 	    uv.push(v);
+
+	    tan.push(0);
+	    tan.push(0);
+	    tan.push(0);
+
+	    bin.push(0);
+	    bin.push(0);
+	    bin.push(0);
+
         }
     }
 
@@ -49,6 +60,14 @@ function generar_esfera() {
 	normalBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normal), gl.STATIC_DRAW);
+
+	var tanBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, tanBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(tan), gl.STATIC_DRAW);
+		
+	var binBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, binBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(bin), gl.STATIC_DRAW);
 
 	var index=[];
 
@@ -82,6 +101,8 @@ function generar_esfera() {
     return {
         vertexBuffer,
         normalBuffer,
+	tanBuffer, 
+	binBuffer,
         indexBuffer,
 	uvBuffer
     }	
@@ -112,6 +133,19 @@ function generar_plano(ancho, alto, repeatU, repeatV) {
 		repeatU, 0
 	];
 
+	let tan = [
+		1, 0, 0,
+		1, 0, 0,
+		1, 0, 0,
+		1, 0, 0,
+	];
+
+	let bin = [
+		0, 1, 0,
+		0, 1, 0,
+		0, 1, 0,
+		0, 1, 0,
+	];
 
 	var vertexBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
@@ -127,6 +161,14 @@ function generar_plano(ancho, alto, repeatU, repeatV) {
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 
+	var tanBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, tanBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(tan), gl.STATIC_DRAW);
+		
+	var binBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, binBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(bin), gl.STATIC_DRAW);
+
 	var uvBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uv), gl.STATIC_DRAW);
@@ -136,6 +178,8 @@ function generar_plano(ancho, alto, repeatU, repeatV) {
         vertexBuffer,
         normalBuffer,
         indexBuffer,
+	tanBuffer,
+	binBuffer,
 	uvBuffer
     }
 
@@ -149,6 +193,8 @@ function generar_superficie_barrido(curva, figura, dibujarTapa = false,
 	let indices = [];
 	let pos = [];
 	let nrm = [];
+	let tan = [];
+	let bin = [];
 	let uv = [];
 
 	var segLongitud = curva.matricesPuntos.length;
@@ -183,6 +229,20 @@ function generar_superficie_barrido(curva, figura, dibujarTapa = false,
 
 			uv.push(cU);
 			uv.push(cV);
+			
+			let t = curva.tangentes[i];
+
+			tan.push(t[0]);
+			tan.push(t[1]);
+			tan.push(t[2]);
+
+			let b = vec3.create();
+			vec3.cross(b, vec3.fromValues(t[0], t[1], t[2]), n);
+
+			bin.push(b[0]);
+			bin.push(b[1]);
+			bin.push(b[2]);
+
 		}
 		acumLength = 0;
 	}
@@ -200,14 +260,18 @@ function generar_superficie_barrido(curva, figura, dibujarTapa = false,
     	}
 	
 	if(dibujarTapa){
+		var bordes = getBoundaries(figura);
+
 		for (var j=0;j<segRadiales;j++){
-			let p = vec3.fromValues(figura.puntos[0][0], figura.puntos[0][1], 0)
+			let p = vec3.fromValues(figura.puntos[j][0], figura.puntos[j][1], 0);
 			vec3.transformMat4(p, p, curva.matricesPuntos[segLongitud-1]);
 
 			var n = vec3.fromValues(0, 0, -1);
 			vec3.transformMat4(n, n, curva.matricesNormales[segLongitud-1]);		
 			vec3.normalize(n, n);
-				
+
+			var cU = (figura.puntos[j][0] - bordes.xmin)/(bordes.xmax - bordes.xmin);
+			var cV = (figura.puntos[j][1] - bordes.ymin)/(bordes.ymax - bordes.ymin);
 
 			pos.push(p[0]);
 			pos.push(p[1]);
@@ -217,14 +281,59 @@ function generar_superficie_barrido(curva, figura, dibujarTapa = false,
 			nrm.push(n[1]);
 			nrm.push(n[2]);					
 
-			if(j>0)
-				acumLength += vec3.dist(figura.puntos[j], figura.puntos[j-1])
+			uv.push(cU);
+			uv.push(cV);
 
-			let cU = repeatU*(acumLength/(totalLength))
-			let cV = repeatV
+			let t = curva.tangentes[segLongitud-1];
+
+			tan.push(t[0]);
+			tan.push(t[1]);
+			tan.push(t[2]);
+
+			let b = vec3.create();
+
+			vec3.cross(b, vec3.fromValues(t[0], t[1], t[2]), n);
+
+			bin.push(b[0]);
+			bin.push(b[1]);
+			bin.push(b[2]);
+		}	
+
+		let p = vec3.fromValues(0, 0, 0);
+		
+		var cU = (p[0] - bordes.xmin)/(bordes.xmax - bordes.xmin);
+		var cV = (p[1] - bordes.ymin)/(bordes.ymax - bordes.ymin);
+
+		vec3.transformMat4(p, p, curva.matricesPuntos[segLongitud-1]);
+
+		var n = vec3.fromValues(0, 0, -1);
+		vec3.transformMat4(n, n, curva.matricesNormales[segLongitud-1]);		
+		vec3.normalize(n, n);
+
+		let t = curva.tangentes[segLongitud-1];
+		let b = vec3.create();
+
+		vec3.cross(b, vec3.fromValues(t[0], t[1], t[2]), n);
+
+		for (var j=0;j<segRadiales;j++){
+			pos.push(p[0]);
+			pos.push(p[1]);
+			pos.push(p[2]);
+
+			nrm.push(n[0]);
+			nrm.push(n[1]);
+			nrm.push(n[2]);					
 
 			uv.push(cU);
 			uv.push(cV);
+
+			tan.push(t[0]);
+			tan.push(t[1]);
+			tan.push(t[2]);
+
+			bin.push(b[0]);
+			bin.push(b[1]);
+			bin.push(b[2]);			
 		}
 
 		for (let j = 0; j < segRadiales - 1; j++) {
@@ -235,6 +344,16 @@ function generar_superficie_barrido(curva, figura, dibujarTapa = false,
 			indices.push((segLongitud-1)* segRadiales + j + 1);
 			indices.push((segLongitud-1+ 1) * segRadiales + j);
 			indices.push((segLongitud-1+ 1) * segRadiales + j + 1);
+		}
+
+		for (let j = 0; j < segRadiales - 1; j++) {
+			indices.push((segLongitud)* segRadiales + j);
+			indices.push((segLongitud + 1) * segRadiales + j);
+			indices.push((segLongitud)* segRadiales + j + 1);
+
+			indices.push((segLongitud)* segRadiales + j + 1);
+			indices.push((segLongitud + 1) * segRadiales + j);
+			indices.push((segLongitud + 1) * segRadiales + j + 1);
 		}
 	}
 
@@ -248,6 +367,14 @@ function generar_superficie_barrido(curva, figura, dibujarTapa = false,
     var normalBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(nrm), gl.STATIC_DRAW);
+
+    var tanBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, tanBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(tan), gl.STATIC_DRAW);
+	
+    var binBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, binBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(bin), gl.STATIC_DRAW);
 
     var indexBuffer = gl.createBuffer();
     indexBuffer.number_vertex_point = indices.length;
@@ -263,6 +390,8 @@ function generar_superficie_barrido(curva, figura, dibujarTapa = false,
         vertexBuffer,
         normalBuffer,
         indexBuffer,
+	tanBuffer,
+	binBuffer,
 	uvBuffer
     }
 }
@@ -396,4 +525,29 @@ function getShapeLenght(shape){
 	}
 
 	return l;
+}
+
+function getBoundaries(shape){
+	let xmin = 0, xmax = 0, ymin = 0, ymax = 0;
+	
+	for (let i = 0; i < shape.puntos.length; i++) {
+		xmin = Math.min(shape.puntos[i][0], xmin);
+		xmax = Math.max(shape.puntos[i][0], xmax); 
+
+		ymin = Math.min(shape.puntos[i][1], ymin);
+		ymax = Math.max(shape.puntos[i][1], ymax);
+	}
+
+	return {xmin, xmax, ymin, ymax}
+}
+
+function getCenter(shape){
+	let x = 0, y = 0;
+
+	for (let i = 0; i < shape.puntos.length; i++) {
+		x += shape.puntos[i][0];
+		y += shape.puntos[i][1];
+	}
+
+	return [x/shape.puntos.length, y/shape.puntos.length, 0];
 }

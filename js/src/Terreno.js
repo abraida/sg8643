@@ -16,26 +16,33 @@ class Terreno extends Objeto {
 		let geom = generar_superficie_barrido(path, shape, false, 1, 3);
 
 
-		isla.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
-		isla.crearTextura("res/ground.png", "uZincTex");
+		isla.setGeometria(geom);
+		isla.crearTextura("res/ground.png", "uDiffTex");
+		isla.crearTextura("res/ground-nml.png", "uNormalTex");
+		isla.usarNormalMap = true;
 
 		isla.setTextureBuffer(geom.uvBuffer);
 		this.agregarHijo(isla);
 		
 		
-		let tierra = new Objeto();
-
+		
 		shape.puntos = [[-rAMundo,-5,0], [-rAMundo, 0,0], [-rMundo, 0, 0], [0, -100, 0]];
 		shape.normales = [[1, 0, 0], [0, 1, 0], [0, 1, 0], [-1, 0, 0]];
-
 		path = path_circle(0.01, 10);
+		geom = generar_superficie_barrido(path, shape, false, 6, 15);
+		
 
-		geom = generar_superficie_barrido(path, shape, false, 6, 10);
+		let tierra = new Objeto();
 
-		tierra.crearTextura("res/ground.png", "uZincTex");
-
-		tierra.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+		
+		tierra.setGeometria(geom);
 		tierra.setTextureBuffer(geom.uvBuffer);
+
+		tierra.crearTextura("res/lava.png", "uDiffTex");
+		tierra.crearTextura("res/lava-nml.png", "uNormalTex");
+		tierra.crearTextura("res/lava-emissive.png", "uEmissiveTex");
+		tierra.usarNormalMap = true;
+		tierra.usarEmissiveMap = true;
 
 		this.agregarHijo(tierra);
 
@@ -43,14 +50,27 @@ class Terreno extends Objeto {
 		let plano = new Objeto();
 		geom = generar_plano(rMundo+20, rMundo+20, 5, 5);
 
-		plano.crearTextura("res/water.jpg", "uZincTex")
+		plano.crearTextura("res/lava2.png", "uDiffTex");
+		plano.crearTextura("res/lava2-nml.png", "uNormalTex");
+		plano.crearTextura("res/lava2-emissive.png", "uEmissiveTex");
+		plano.usarNormalMap = true;
+		plano.usarEmissiveMap = true;
 
-		plano.setGeometria(geom.vertexBuffer, geom.indexBuffer, geom.normalBuffer);
+
+		plano.setGeometria(geom);
 		plano.setTextureBuffer(geom.uvBuffer);
 		plano.setRotacion(1, 0, 0, Math.PI/2);
 		plano.setPosicion(-(rMundo+20)/2, -1.5, -(rMundo+20)/2);
 
 		this.agregarHijo(plano);	
+		
+		this.tierra = tierra;
+		this.plano = plano;
+	}
+
+	apagarLava() {
+		this.tierra.usarEmissiveMap = false;
+		this.plano.usarEmissiveMap = false;
 	}
 }
 
