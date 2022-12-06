@@ -585,7 +585,7 @@ class Castillo extends Objeto{
 		e.setEscala(.2, .2, .2);
 
 		let e1 = new Objeto();
-		//e1.setGeometria(geom);
+		e1.setGeometria(geom);
 		e1.setPosicion(p2[0] + .3, p2[1] + 2, p2[2]);
 		e1.setColor(50, 50, 50);
 		e1.setTextureBuffer(geom.uvBuffer)

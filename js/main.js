@@ -1,6 +1,8 @@
+
 var mCastillo = null;
 var mTerreno = null;
 var mCatapulta = null;
+var mCieli = null;
 
 var mOrbCastillo = null;  
 var mOrbCat = null; 
@@ -23,6 +25,15 @@ var velDis = vec3.create();
 var disparo = null;
 
 var CATAPULTA_DISPONIBLE = true;
+
+var skyTexs = [
+	"res/sky/right.png",
+	"res/sky/left.png",
+	"res/sky/bottom.png",
+	"res/sky/top.png",
+	"res/sky/front.png",
+	"res/sky/back.png",
+]
 
 function disparar_catapulta() {	
 	if(!CATAPULTA_DISPONIBLE)
@@ -103,6 +114,10 @@ function setup_modelos() {
 	mCatapulta.setPosicion(-5, .05, -5);    
 	mCatapulta.setRotacion(0,1,0, (rotacionCatapulta + 310) / 180 * Math.PI);
 
+	mCielo = new Cubo();
+	mCielo.generarCubo();
+	mCielo.generarTextura(skyTexs);
+
 	mCastillo.setEscala(.1, .1, .1);
 	mTerreno.setEscala(.1, .1, .1);
 	mCatapulta.setEscala(.1, .1, .1);    
@@ -121,14 +136,24 @@ function draw_scene() {
 	vec3.fromValues(0, 1, 0)
 	);
 
+	let vMat = mat4.create();
+
+	vMat = mat4.copy(vMat, viewMatrix);
+
+	vMat[12] = 0;
+	vMat[13] = 0;
+	vMat[14] = 0;
 	
-	let m = mat4.create;
-	mat4.identity(m, m);
+	mat4.mul(vMat, projMatrix, vMat);
+	mat4.invert(vMat, vMat);
+	mCielo.m=vMat;
 	
 	mCastillo.setProgram(glProgram);
 	mTerreno.setProgram(glProgramTerreno);
 	mCatapulta.setProgram(glProgram);
-	
+
+	mCielo.setProgram(glProgram);
+
 	var munPos = mCatapulta.get_municion_pos();
 	if(disparo != null && actualDis != null){
 		munPos =  actualDis;
@@ -137,7 +162,7 @@ function draw_scene() {
 	var antPos = mCastillo.get_antorcha_pos();
 	
 	if(!lavaEmisiva)
-		mTerreno.apagarLava();
+	mTerreno.apagarLava();
 	
 	
 	gl.useProgram(glProgram);
@@ -153,7 +178,12 @@ function draw_scene() {
 	gl.uniform3f(camPosUniformT, mCamara.pos[0], mCamara.pos[1], mCamara.pos[2]);
 
 	
+	mCielo.dibujar();
+
+	let m = mat4.create();
+	mat4.identity(m, m);
 	
+
 	if (DIBUJAR_TERRENO)
 		mTerreno.dibujar(m);
 	if(DIBUJAR_CASTILLO)

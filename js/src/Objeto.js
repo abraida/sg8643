@@ -22,6 +22,7 @@ class Objeto {
 
 		this.usarNormalMap = false;
 		this.usarEmissiveMap = false;
+		this.difuminarTerreno = false;
 
 		this.shininess = 5;
 
@@ -65,6 +66,8 @@ class Objeto {
 		this.texNames.push(name);
 	}
 
+
+
 	actualizarMatrizModelado() { 
 		this.matriz_modelado = mat4.create();
 
@@ -103,8 +106,12 @@ class Objeto {
 		uBool = gl.getUniformLocation(this.Program, "difuminarTerreno");
 		gl.uniform1i(uBool, this.difuminarTerreno);
 
+		uBool = gl.getUniformLocation(this.Program, "esCubeMap");
+		gl.uniform1i(uBool, false);
+
 		var uS = gl.getUniformLocation(this.Program, "shininess");
 		gl.uniform1f(uS, this.shininess);
+
 	}
 
 	dibujar(matPadre) {
@@ -144,6 +151,7 @@ class Objeto {
 
 		}
 
+		
 		if (this.textureBuffer) {
 			vertexTextureAttribute = gl.getAttribLocation(this.Program, "aTextureCoord");
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
@@ -151,7 +159,7 @@ class Objeto {
 			gl.vertexAttribPointer(vertexTextureAttribute, 2, gl.FLOAT, false, 0, 0);
 			
 			gl.enableVertexAttribArray(vertexTextureAttribute);
-			
+
 			for (let i = 0; i < this.textures.length; i++){
 
 				gl.activeTexture(gl.TEXTURE0 + i);

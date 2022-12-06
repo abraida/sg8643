@@ -31,6 +31,8 @@
 		<script src="js/src/Catapulta.js"></script>
 		<script src="js/src/Terreno.js"></script>
 		<script src="js/src/Camara.js"></script>
+		<script src="js/src/Cubo.js"></script>
+
 		<script src="js/init.js"></script>
         
         <script src="js/main.js"></script>
@@ -51,7 +53,8 @@
             uniform mat4 modelMatrix;            
             uniform mat4 viewMatrix;
             uniform mat4 projMatrix;
-            
+            uniform mat4 viewDirectionProjectionInverseMatrix;
+
             uniform mat4 normalMatrix;
 
             varying vec3 vNormal;    
@@ -62,7 +65,10 @@
 
 
             varying vec2 vTextureCoord;
+            varying vec3 vTexture3DCoord;
 
+
+            uniform bool esCubeMap;
 
             void main(void) {
                 gl_Position = projMatrix * viewMatrix * modelMatrix * vec4(aVertexPosition, 1.0);
@@ -77,6 +83,14 @@
                 vTBN = mat3(t, b, vNormal);
 
                 vTextureCoord = aTextureCoord;
+
+                if(esCubeMap){
+                    gl_Position = vec4(aVertexPosition, 1.0);
+                    gl_Position[2] = 1.0;
+                    vPosWorld = aVertexPosition;
+
+                    vTexture3DCoord = normalize((viewDirectionProjectionInverseMatrix*vec4(aVertexPosition,1.0)).xyz);
+                }
             }
         </script>
 
@@ -92,10 +106,12 @@
             uniform vec3 uCamPos;
             
             varying vec2 vTextureCoord;
+            varying vec3 vTexture3DCoord;
+
             uniform sampler2D uDiffTex;
             uniform sampler2D uNormalTex;
             uniform sampler2D uEmissiveTex;
-
+            uniform samplerCube uCubeTex;
             uniform float shininess;
 
             uniform vec3 uAmbientColor;	    
@@ -108,6 +124,8 @@
             uniform bool usarTextura;
             uniform bool usarNormalMap;
             uniform bool usarEmissiveMap;
+            uniform bool esCubeMap;
+
             uniform bool debugMode;
 
             vec3 CalcDirLight(vec3 lightColor, vec3 dir, vec3 normal, vec4 tex) {
@@ -156,9 +174,13 @@
             }  
 
             void main(void) {
-                
-                vec4 tex = texture2D(uDiffTex, vTextureCoord).rgba;
+                if (esCubeMap) {
+                    gl_FragColor = textureCube(uCubeTex, vTexture3DCoord);
+                    return;
+                }
 
+                vec4 tex = texture2D(uDiffTex, vTextureCoord).rgba;
+                
                 vec3 normal = vNormal;
 
                 if (usarNormalMap) {

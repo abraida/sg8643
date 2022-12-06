@@ -59,9 +59,8 @@ function setupWebGL() {
 		gl.viewport(0, 0, canvas.width, canvas.height);
 		
 		aspect = canvas.width/canvas.height;
-
+		
 		// Matrix de Proyeccion Perspectiva
-
 		mat4.perspective(projMatrix, 45, canvas.width / canvas.height, 0.1, 100.0);
 		
 		mat4.identity(viewMatrix);

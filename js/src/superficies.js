@@ -1,6 +1,8 @@
 
 let vec4 = glMatrix.vec4;
 
+
+
 function generar_esfera() {
 	var pos=[];
 	var normal=[];
