@@ -22,10 +22,12 @@
         <script src="js/import/dat.gui.js"></script>
 		<script src="js/import/jquery-3.6.1.min.js"></script>
         
+		<script src="js/src/interfaz.js"></script>
         <script src="js/src/paths.js"></script>
         <script src="js/src/shapes.js"></script>
-
         <script src="js/src/superficies.js"></script>
+		<script src="js/src/iluminacion.js"></script>
+        
 		<script src="js/src/Objeto.js"></script>
 		<script src="js/src/Castillo.js"></script>
 		<script src="js/src/Catapulta.js"></script>
@@ -34,195 +36,209 @@
 		<script src="js/src/Cubo.js"></script>
 
 		<script src="js/init.js"></script>
-        
         <script src="js/main.js"></script>
-		<script src="js/src/interfaz.js"></script>
-
-
 
         <script id="shader-vs" type="x-shader/x-vertex">
+                    precision highp float;
+        
+                    attribute vec3 aVertexPosition;
+                    attribute vec3 aVertexNormal;
+                    attribute vec3 aVertexTan;
+                    attribute vec3 aVertexBin;
+        
+                    attribute vec2 aTextureCoord;
+        
+                    uniform mat4 modelMatrix;            
+                    uniform mat4 viewMatrix;
+                    uniform mat4 projMatrix;
+        
+                    uniform mat4 normalMatrix;
+        
+                    varying vec3 vNormal;    
+                    varying mat3 vTBN;    
+        
+                    varying vec3 vPosWorld;  
+                    varying vec3 vCamPosWorld;
+                
+                    varying vec2 vTextureCoord;
+        
+                    void main(void) {
+                        gl_Position = projMatrix * viewMatrix * modelMatrix * vec4(aVertexPosition, 1.0);
+        
+                        vPosWorld=(modelMatrix*vec4(aVertexPosition,1.0)).xyz;    
+                        
+                        vNormal = normalize(normalMatrix * vec4(aVertexNormal, 1.0)).xyz;
+        
+                        
+                        vec3 t = normalize(normalMatrix * vec4(aVertexTan, 1.0)).xyz;     
+        
+                        vec3 b = normalize(normalMatrix * vec4(aVertexBin, 1.0)).xyz;
+        
+                        vTBN = mat3(t, b, vNormal);
+        
+                        vTextureCoord = aTextureCoord;
+                    }
+                </script>
+        
+        <script id="shader-fs" type="x-shader/x-fragment">
+                    #define N_LIGHTS 4 
+                    
+                    precision highp float;
+        
+                    varying vec3 vNormal;
+                    varying vec3 vPosWorld;
+                    varying vec3 vCamPosWorld;
+                    varying mat3 vTBN;    
+                    uniform vec3 uCamPos;
+                    
+                    varying vec2 vTextureCoord;
+        
+                    uniform sampler2D uDiffTex;
+                    uniform sampler2D uNormalTex;
+                    uniform sampler2D uEmissiveTex;
+                    uniform float shininess;
+        
+                    uniform vec3 uAmbientColor;	    
+        
+                    uniform vec3 uLightColor[N_LIGHTS];
+                    uniform vec3 uLightPos[N_LIGHTS];
+                    uniform vec3 uLightConst[N_LIGHTS];
+                    uniform bool uLightIsDirectional[N_LIGHTS];
+        
+                    uniform bool usarTextura;
+                    uniform bool usarNormalMap;
+                    uniform bool usarEmissiveMap;
+        
+                    uniform bool debugMode;
+        
+                    vec3 CalcDirLight(vec3 lightColor, vec3 dir, vec3 normal, vec4 tex) {
+                        vec3 N = normalize(normal);
+                        vec3 L = normalize(dir);
+        
+                        float diff = max(dot(N, L), 0.0);
+                        float specular = 0.0;
+                        
+                        if(diff > 0.0) {
+                            vec3 R = reflect(-L, N);      
+                            vec3 V = normalize(uCamPos-vPosWorld); 
+        
+                            float specAngle = max(dot(R, V), 0.0);
+                            specular = pow(specAngle, shininess);
+                        }
+        
+                        return  (diff * lightColor * vec3(tex) + 
+                                    .3 * tex[3] * specular * lightColor);        
+                    
+                    }  
+        
+                    vec3 CalcPointLight(vec3 lightColor, vec3 pos, vec3 coeff, vec3 normal, vec4 tex) {                
+                        vec3 N = normalize(normal);
+                        vec3 L = normalize(pos - vPosWorld);
+        
+                        float diff = max(dot(N, L), 0.0);
+                        float specular = 0.0;
+                        
+                        if(diff > 0.0) {
+                            vec3 R = reflect(-L, N);  
+                            vec3 V = normalize(uCamPos-vPosWorld); 
+        
+                            float specAngle = max(dot(R, V), 0.0);
+                            specular = pow(specAngle, shininess);
+                        }
+        
+                        float distance = length(pos - vPosWorld);
+                        
+                        float attenuation = 1.0 / (coeff[0] + coeff[1] * distance + 
+          			     coeff[2] * (distance * distance));
+        
+                        return  (diff * lightColor * vec3(tex) * attenuation + 
+                                    .3 * tex[3] * specular * lightColor * attenuation);        
+        
+                    }  
+        
+                    void main(void) {
+                        vec4 tex = texture2D(uDiffTex, vTextureCoord).rgba;
+                        
+                        vec3 normal = vNormal;
+        
+                        if (usarNormalMap) {
+                            vec3 nTex = texture2D(uNormalTex, vTextureCoord).rgb;
+                            nTex = nTex * 2.0 - 1.0;   
+                            
+                            normal = normalize(vTBN * nTex);
+                        }
+                        
+                        if (debugMode) {
+                            vec3 result = normal;
+                            gl_FragColor = vec4(result, 1.0);
+                            return;
+                        }
+        
+                        vec3 result = vec3(0.0, 0.0, 0.0);
+                    
+        
+                        for(int i = 0; i < N_LIGHTS; i++) {
+                            if(uLightIsDirectional[i]){
+                                result += CalcDirLight(uLightColor[i], uLightPos[i], normal, tex);    
+                            }
+                            else {
+                                result += CalcPointLight(uLightColor[i], uLightPos[i], uLightConst[i], normal, tex);    
+        
+                            }
+                        }
+        
+                        if (usarEmissiveMap) {
+                            vec3 texEm = texture2D(uEmissiveTex, vTextureCoord).rgb;
+                            result += texEm;        
+                        }
+        
+                        if (usarTextura) {
+                            result += uAmbientColor * vec3(tex);        
+                            gl_FragColor = vec4(result, 1.0);
+                            return;
+                        }
+        
+        
+                        result += uAmbientColor * .5;        
+                        gl_FragColor = vec4(result, 1.0);
+                    }
+        </script>
+
+        <script id="shader-vss" type="x-shader/x-vertex">
             precision highp float;
 
             attribute vec3 aVertexPosition;
-            attribute vec3 aVertexNormal;
-            attribute vec3 aVertexTan;
-            attribute vec3 aVertexBin;
-
             attribute vec2 aTextureCoord;
 
-            uniform mat4 modelMatrix;            
-            uniform mat4 viewMatrix;
-            uniform mat4 projMatrix;
             uniform mat4 viewDirectionProjectionInverseMatrix;
-
-            uniform mat4 normalMatrix;
-
-            varying vec3 vNormal;    
-            varying mat3 vTBN;    
 
             varying vec3 vPosWorld;  
             varying vec3 vCamPosWorld;
-
-
-            varying vec2 vTextureCoord;
             varying vec3 vTexture3DCoord;
 
-
-            uniform bool esCubeMap;
-
             void main(void) {
-                gl_Position = projMatrix * viewMatrix * modelMatrix * vec4(aVertexPosition, 1.0);
 
-                vPosWorld=(modelMatrix*vec4(aVertexPosition,1.0)).xyz;    
+                gl_Position = vec4(aVertexPosition, 1.0);
+                gl_Position[2] = 1.0;
+                vPosWorld = aVertexPosition;
+
+                vTexture3DCoord = normalize((viewDirectionProjectionInverseMatrix*vec4(aVertexPosition,1.0)).xyz);
                 
-                vNormal= (normalMatrix*vec4(normalize(aVertexNormal),1.0)).xyz;     
-                
-                vec3 t = (normalMatrix*vec4(normalize(aVertexTan),1.0)).xyz;     
-
-                vec3 b = (normalMatrix*vec4(normalize(aVertexBin),1.0)).xyz;     
-                vTBN = mat3(t, b, vNormal);
-
-                vTextureCoord = aTextureCoord;
-
-                if(esCubeMap){
-                    gl_Position = vec4(aVertexPosition, 1.0);
-                    gl_Position[2] = 1.0;
-                    vPosWorld = aVertexPosition;
-
-                    vTexture3DCoord = normalize((viewDirectionProjectionInverseMatrix*vec4(aVertexPosition,1.0)).xyz);
-                }
             }
+
         </script>
 
-        <script id="shader-fs" type="x-shader/x-fragment">
-            #define N_LIGHTS 4 
-            
+        <script id="shader-fss" type="x-shader/x-fragment">
             precision highp float;
 
-            varying vec3 vNormal;
-            varying vec3 vPosWorld;
-            varying vec3 vCamPosWorld;
-            varying mat3 vTBN;    
-            uniform vec3 uCamPos;
-            
-            varying vec2 vTextureCoord;
+            varying vec3 vPosWorld; 
             varying vec3 vTexture3DCoord;
 
-            uniform sampler2D uDiffTex;
-            uniform sampler2D uNormalTex;
-            uniform sampler2D uEmissiveTex;
             uniform samplerCube uCubeTex;
-            uniform float shininess;
-
-            uniform vec3 uAmbientColor;	    
-
-            uniform vec3 uLightColor[N_LIGHTS];
-            uniform vec3 uLightPos[N_LIGHTS];
-            uniform vec3 uLightConst[N_LIGHTS];
-            uniform bool uLightIsDirectional[N_LIGHTS];
-
-            uniform bool usarTextura;
-            uniform bool usarNormalMap;
-            uniform bool usarEmissiveMap;
-            uniform bool esCubeMap;
-
-            uniform bool debugMode;
-
-            vec3 CalcDirLight(vec3 lightColor, vec3 dir, vec3 normal, vec4 tex) {
-                vec3 N = normalize(normal);
-                vec3 L = normalize(dir);
-
-                float diff = max(dot(N, L), 0.0);
-                float specular = 0.0;
-                
-                if(diff > 0.0) {
-                    vec3 R = reflect(-L, N);      
-                    vec3 V = normalize(uCamPos-vPosWorld); 
-
-                    float specAngle = max(dot(R, V), 0.0);
-                    specular = pow(specAngle, shininess);
-                }
-
-                return  (diff * lightColor * vec3(tex) + 
-                            .3 * tex[3] * specular * lightColor);        
-            
-            }  
-
-            vec3 CalcPointLight(vec3 lightColor, vec3 pos, vec3 coeff, vec3 normal, vec4 tex) {                
-                vec3 N = normalize(normal);
-                vec3 L = normalize(pos - vPosWorld);
-
-                float diff = max(dot(N, L), 0.0);
-                float specular = 0.0;
-                
-                if(diff > 0.0) {
-                    vec3 R = reflect(-L, N);  
-                    vec3 V = normalize(uCamPos-vPosWorld); 
-
-                    float specAngle = max(dot(R, V), 0.0);
-                    specular = pow(specAngle, shininess);
-                }
-
-                float distance = length(pos - vPosWorld);
-                
-                float attenuation = 1.0 / (coeff[0] + coeff[1] * distance + 
-  			     coeff[2] * (distance * distance));
-
-                return  (diff * lightColor * vec3(tex) * attenuation + 
-                            .3 * tex[3] * specular * lightColor * attenuation);        
-
-            }  
 
             void main(void) {
-                if (esCubeMap) {
-                    gl_FragColor = textureCube(uCubeTex, vTexture3DCoord);
+                gl_FragColor = textureCube(uCubeTex, vTexture3DCoord);
                     return;
-                }
-
-                vec4 tex = texture2D(uDiffTex, vTextureCoord).rgba;
-                
-                vec3 normal = vNormal;
-
-                if (usarNormalMap) {
-                    vec3 nTex = texture2D(uNormalTex, vTextureCoord).rgb;
-                    nTex = nTex * 2.0 - 1.0;   
-                    
-                    normal = normalize(vTBN * nTex);
-                }
-                
-                if (debugMode) {
-                    vec3 result = normal + vec3(0.2, 0.2, 0.2);
-                    gl_FragColor = vec4(result, 1.0);
-                    return;
-                }
-
-                vec3 result = vec3(0.0, 0.0, 0.0);
-            
-
-                for(int i = 0; i < N_LIGHTS; i++) {
-                    if(uLightIsDirectional[i]){
-                        result += CalcDirLight(uLightColor[i], uLightPos[i], normal, tex);    
-                    }
-                    else {
-                        result += CalcPointLight(uLightColor[i], uLightPos[i], uLightConst[i], normal, tex);    
-
-                    }
-                }
-
-                if (usarEmissiveMap) {
-                    vec3 texEm = texture2D(uEmissiveTex, vTextureCoord).rgb;
-                    result += texEm;        
-                }
-
-                if (usarTextura) {
-                    result += uAmbientColor * vec3(tex);        
-                    gl_FragColor = vec4(result, 1.0);
-                    return;
-                }
-
-
-                result += uAmbientColor * .5;        
-                gl_FragColor = vec4(result, 1.0);
             }
         </script>
 

@@ -583,6 +583,8 @@ class Castillo extends Objeto{
 		e.setColor(50, 50, 50);
 		e.setTextureBuffer(geom.uvBuffer)
 		e.setEscala(.2, .2, .2);
+		e.crearTextura("res/ammo-emissive.png", "uEmissiveTex");
+		e.usarEmissiveMap = true;
 
 		let e1 = new Objeto();
 		e1.setGeometria(geom);
@@ -590,7 +592,8 @@ class Castillo extends Objeto{
 		e1.setColor(50, 50, 50);
 		e1.setTextureBuffer(geom.uvBuffer)
 		e1.setEscala(.2, .2, .2);
-
+		e1.crearTextura("res/ammo-emissive.png", "uEmissiveTex");
+		e1.usarEmissiveMap = true;
 		return {e, e1};		
 	}
 

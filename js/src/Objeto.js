@@ -95,9 +95,12 @@ class Objeto {
 		var uBool = gl.getUniformLocation(this.Program, "usarTextura");
 		gl.uniform1i(uBool, Boolean(this.textureBuffer));
 
-		if(usarMapaNormales){
-			uBool = gl.getUniformLocation(this.Program, "usarNormalMap");
-			gl.uniform1i(uBool, this.usarNormalMap);
+		uBool = gl.getUniformLocation(this.Program, "usarNormalMap");
+		gl.uniform1i(uBool, this.usarNormalMap);
+		
+		if(!usarMapaNormales){
+			gl.uniform1i(uBool, false);
+		
 		}
 
 		uBool = gl.getUniformLocation(this.Program, "usarEmissiveMap");
@@ -105,9 +108,6 @@ class Objeto {
 
 		uBool = gl.getUniformLocation(this.Program, "difuminarTerreno");
 		gl.uniform1i(uBool, this.difuminarTerreno);
-
-		uBool = gl.getUniformLocation(this.Program, "esCubeMap");
-		gl.uniform1i(uBool, false);
 
 		var uS = gl.getUniformLocation(this.Program, "shininess");
 		gl.uniform1f(uS, this.shininess);

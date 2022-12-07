@@ -21,23 +21,15 @@ parameters = {
 
 lights = {
 	amb: "#1a0909",
-	diff: "#4a3030",
-	ant1: "#fdfdfd",
-	ant2: "#fdfdfd",
-	cat: "#fdfdfd",
+	diff: "#4b5574",
+	ant1: "#ffe5c6",
+	ant2: "#ffe5c6",
+	cat: "#ffe5c6",
 }
-
-var ambColor = hexToRgb(lights.amb);
-var diffColor = hexToRgb(lights.diff);
-var antColor1 = hexToRgb(lights.ant1);
-var antColor2 = hexToRgb(lights.ant2);
-var catColor = hexToRgb(lights.cat);
 
 var lavaEmisiva = true;
 var modoNormales = false;
 var usarMapaNormales = true;
-
-
 
 var disparar = function() {
 	disparar_catapulta();
@@ -73,9 +65,9 @@ $('canvas').mouseup(function (event) {
 
 function zoom(event) {
 	if (event.deltaY < 0) {					
-		mCamara.disminuirZoom(event.deltaY * -0.001);
+		mCamara.disminuirZoom(event.deltaY * -0.0005);
 	} else {
-		mCamara.aumentarZoom(event.deltaY * 0.001);				
+		mCamara.aumentarZoom(event.deltaY * 0.0005);				
 	}
 }
 
@@ -148,9 +140,7 @@ function initMenu() {
 
 	var escena = gui.addFolder("Escena");
 
-	escena.add(window, "rotacionCatapulta", 0, 360).step(1).onChange(event => {
-		setup_modelos();
-	});
+	escena.add(window, "rotacionCatapulta", 0, 360).step(1);
 	escena.add(window, "disparar");
 
 

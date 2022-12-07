@@ -61,11 +61,11 @@ class Cubo {
 		var uBool = gl.getUniformLocation(this.Program, "esCubeMap");
 		gl.uniform1f(uBool, true);
 
-		gl.activeTexture(gl.TEXTURE0 + 5);
+		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.cubeMap);
 		
 		var textureLocation = gl.getUniformLocation(this.Program, "uCubeTex");
-		gl.uniform1i(textureLocation, 5);
+		gl.uniform1i(textureLocation, 0);
 
 		let vertexPositionAttribute = gl.getAttribLocation(this.Program, "aVertexPosition");
 		

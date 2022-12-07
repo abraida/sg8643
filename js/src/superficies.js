@@ -1,7 +1,159 @@
 
 let vec4 = glMatrix.vec4;
 
+function generar_cubo(repeatU, repeatV) {
+	var pos = [
+		0, 1, 0,
+		1, 1, 0,
+		1, 1, 1,
+		0, 1, 1,
+		
+		0, 0, 0,
+		1, 0, 0,
+		1, 1, 0,
+		0, 1, 0,
 
+		1, 0, 0,
+		1, 0, 1,
+		1, 1, 1,
+		1, 1, 0,
+
+		1, 0, 1,
+		0, 0, 1,
+		0, 1, 1,
+		1, 1, 1,
+		
+		0, 0, 1,
+		0, 0, 0,
+		0, 1, 0,
+		0, 1, 1,
+
+
+		1, 0, 1,
+		1, 0, 0,
+		0, 0, 0,
+		0, 0, 1,
+	]
+
+	var nrm = [
+		0, 1, 0,
+		0, 1, 0,
+		0, 1, 0,
+		0, 1, 0,
+		
+		0, 0, -1,
+		0, 0, -1,
+		0, 0, -1,
+		0, 0, -1,
+		
+		1, 0, 0,
+		1, 0, 0,
+		1, 0, 0,
+		1, 0, 0,
+
+		0, 0, 1,
+		0, 0, 1,
+		0, 0, 1,
+		0, 0, 1,
+		
+		-1, 0, 0,
+		-1, 0, 0,
+		-1, 0, 0,
+		-1, 0, 0,
+
+
+		0, -1, 0,
+		0, -1, 0,
+		0, -1, 0,
+		0, -1, 0,	
+
+	]
+
+	var uv = [
+		0.0, 0.0, 
+		repeatU, 0.0, 
+		repeatU, repeatV, 
+		0.0, repeatV,
+
+		0.0, 0.0, 
+		repeatU, 0.0, 
+		repeatU, repeatV, 
+		0.0, repeatV,
+
+		0.0, 0.0, 
+		repeatU, 0.0, 
+		repeatU, repeatV, 
+		0.0, repeatV,
+
+		0.0, 0.0, 
+		repeatU, 0.0, 
+		repeatU, repeatV, 
+		0.0, repeatV,
+
+		0.0, 0.0, 
+		repeatU, 0.0, 
+		repeatU, repeatV, 
+		0.0, repeatV,
+
+		0.0, 0.0, 
+		repeatU, 0.0, 
+		repeatU, repeatV, 
+		0.0, repeatV,
+	];
+
+	var indices = [];
+
+	for (let i = 0; i < 6; i++) {
+		indices.push(i * 4 );
+		indices.push(i * 4 + 1);
+		indices.push(i * 4 + 2);
+
+		indices.push(i * 4 + 2);
+		indices.push(i * 4 + 3);
+		indices.push(i * 4 );
+    	}
+	
+
+	var tan = new Array(72).fill(0);
+	var bin = new Array(72).fill(0);
+
+	 var vertexBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pos), gl.STATIC_DRAW);
+
+	var normalBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(nrm), gl.STATIC_DRAW);
+
+	var indexBuffer = gl.createBuffer();
+	indexBuffer.number_vertex_point = indices.length;
+
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+
+	var tanBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, tanBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(tan), gl.STATIC_DRAW);
+		
+	var binBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, binBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(bin), gl.STATIC_DRAW);
+
+	var uvBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uv), gl.STATIC_DRAW);
+	
+
+	return {
+		vertexBuffer,
+		normalBuffer,
+		indexBuffer,
+		tanBuffer,
+		binBuffer,
+		uvBuffer
+	}
+
+}
 
 function generar_esfera() {
 	var pos=[];
@@ -143,10 +295,10 @@ function generar_plano(ancho, alto, repeatU, repeatV) {
 	];
 
 	let bin = [
-		0, 1, 0,
-		0, 1, 0,
-		0, 1, 0,
-		0, 1, 0,
+		0, -1, 0,
+		0, -1, 0,
+		0, -1, 0,
+		0, -1, 0,
 	];
 
 	var vertexBuffer = gl.createBuffer();
@@ -216,6 +368,7 @@ function generar_superficie_barrido(curva, figura, dibujarTapa = false,
 
 			let n = vec3.fromValues(figura.normales[j][0], figura.normales[j][1], 0);
 
+			
 			vec3.transformMat4(n, n, curva.matricesNormales[i]);
 			vec3.normalize(n, n);
 

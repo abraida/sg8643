@@ -110,8 +110,8 @@ class CamaraFP extends Camara {
     }
 
     mover(d, a){
-        d *= .1;
-        a *= .1;
+        d *= .05;
+        a *= .05;
 
         var adelante = vec3.fromValues(this.obj[0], this.obj[1], this.obj[2]);
         var derecha = vec3.fromValues(this.obj[2], this.obj[1], -this.obj[0]);

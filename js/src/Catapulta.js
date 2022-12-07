@@ -40,7 +40,7 @@ class Catapulta extends Objeto {
 
 		let base = this.#crear_cuadrado(6, 4, .3);
 
-		base.setPosicion(3, -0, -2);
+		base.setPosicion(-3, -0, -2);
 		this.agregarHijo(base);
 		
 		let sop1 = this.#crear_soporte(1.3, .1, 2.5);
@@ -61,7 +61,7 @@ class Catapulta extends Objeto {
 		this.agregarHijo(cil3);
 
 		let brazo = new Objeto();
-		brazo.setPosicion(1.6, 2, -1.15);
+		brazo.setPosicion(1.6, 1.85, -1.15);
 
 		
 		brazo.setRotacion(0, 0, 1, .58*Math.PI);
@@ -78,11 +78,13 @@ class Catapulta extends Objeto {
 		brazo.agregarHijo(pala2);
 		
 		let municion = this.#crear_esfera(.3);
-		municion.setPosicion(.3, 4, 1.3);
+		municion.setPosicion(.5, 4, 1.3);
 		brazo.agregarHijo(municion);
+		municion.crearTextura("res/ammo-emissive.png", "uEmissiveTex");
+		municion.usarEmissiveMap = true;
 
 		let contrapeso = new Objeto();
-		contrapeso.setPosicion(-.05, -.45, .9);
+		contrapeso.setPosicion(0.1, -.45, .925);
 		brazo.agregarHijo(contrapeso);
 
 		let cil4 = this.#crear_cilindro(.05, .8);
@@ -104,7 +106,7 @@ class Catapulta extends Objeto {
 		contrapeso.agregarHijo(sop4);
 		
 		let cubo = this.#crear_cuadrado(.7, 1, .5);
-		cubo.setPosicion(-.8, -.3, -.2);
+		cubo.setPosicion(-.8, .35, -.23);
 		cubo.setRotacion(0, 0, 1, -Math.PI/2);
 		contrapeso.agregarHijo(cubo);		
 
@@ -119,8 +121,13 @@ class Catapulta extends Objeto {
 	#crear_cilindro(radio, largo) {
 		let shape = new Object();
 
-		shape.puntos = [[0,0,0], [-radio/2, 0, 0], [-radio/2, 1, 0], [0, 1, 0]]
-		shape.normales = [[0, -1, 0], [-1, 0, 0], [-1, 0, 0], [0,1,0]];
+		shape.puntos = [
+			[0,0,0], [-radio/2, 0, 0], [-radio/2, 0, 0], [-radio/2, 1, 0], [-radio/2, 1, 0], [0, 1, 0],
+		];
+
+		shape.normales = [
+			[0, -1, 0], [0, -1, 0], [-1, 0, 0], [-1, 0, 0], [0, 1, 0], [0,1,0],
+		];
 
 		let path = path_circle(0.01, 10);
 		
@@ -136,14 +143,7 @@ class Catapulta extends Objeto {
 	}
 
 	#crear_cuadrado(ancho, largo, alto){
-		let shape = new Object();
-		
-		shape.puntos = [[0,0,0], [0, 1, 0], [1, 1, 0], [1, 0, 0], [0, 0, 0]];
-		shape.normales = [[-1, 0, 0], [0, 1, 0], [1, 0, 0], [0, -1, 0], [-1, 0, 0]];
-		
-		let path = path_line(2, 1);
-
-		let geom = generar_superficie_barrido(path, shape, true, 4, 2);	
+		let geom = generar_cubo(4, 2);	
 		
 		let cuad = new Objeto();
 		cuad.setGeometria(geom);
@@ -172,8 +172,10 @@ class Catapulta extends Objeto {
 		let paso = 1/10;
 		for (let i = 0; i < 4; i++) {
 			let shape = new Object();
+
 			shape.puntos = [[i*paso,0,0], [i*paso, 1, 0], [1-i*paso, 1, 0], [1-i*paso, 0, 0], [i*paso, 0, 0]];
-			shape.normales = [[1, 0, 0], [0, 1, 0], [-1, 0, 0], [0, -1, 0], [1, 0, 0]];
+
+			shape.normales = [[0, -1, 0], [0, 1, 0], [0, 1, 0], [0, -1, 0], [0, -1, 0]];
 			shapes.push(shape);
 		}	
 
@@ -184,7 +186,7 @@ class Catapulta extends Objeto {
 		cuad.setGeometria(geom);
 		cuad.setTextureBuffer(geom.uvBuffer);
 		cuad.crearTextura("res/wood.png", "uDiffTex");
-		cuad.setEscala(ancho, alto, largo);
+		cuad.setEscala(ancho, .01, largo);
 
 		return cuad;	
 	}
@@ -203,7 +205,9 @@ class Catapulta extends Objeto {
 		d.setGeometria(geom);
 
 		d.setColor(50, 50, 50);
-		d.setTextureBuffer(geom.uvBuffer)
+		d.setTextureBuffer(geom.uvBuffer);
+		d.crearTextura("res/ammo-emissive.png", "uEmissiveTex");
+		d.usarEmissiveMap = true;
 		return d;
 	}
 
