@@ -9,8 +9,18 @@ class Terreno extends Objeto {
 		let isla = new Objeto();
 		let shape = new Object();
 		
-		shape.puntos = [[0,0,0], [rIsla, 0, 0], [rIsla, -5, 0]]
-		shape.normales = [[0, 1, 0], [0, 1, 0], [1, 0, 0]];
+		shape.puntos = [
+			[0,0,0],
+			[rIsla, 0, 0], [rIsla, 0, 0], 
+			[rIsla, -5, 0]
+
+		]; 
+		shape.normales = [
+			[0, 1, 0],
+			[0, 1, 0],[1, 0, 0],
+			[1, 0, 0]
+		];
+		
 		let path = path_circle(0.01, 10);
 		
 		let geom = generar_superficie_barrido(path, shape, false, 1, 3);
@@ -27,8 +37,21 @@ class Terreno extends Objeto {
 		
 		
 		
-		shape.puntos = [[-rAMundo,-5,0], [-rAMundo, 0,0], [-rMundo, 0, 0], [0, -100, 0]];
-		shape.normales = [[1, 0, 0], [0, 1, 0], [0, 1, 0], [-1, 0, 0]];
+		shape.puntos = [
+			[-rAMundo,-5,0],
+			[-rAMundo, 0,0], 
+			[-rMundo, 0, 0], 
+			[-rMundo, 0, 0], 
+			[0, -100, 0]
+		];
+
+		shape.normales = [
+			[0, -1, 0], 
+			[0, 1, 0], 
+			[0, 1, 0], 
+			[-1, 0, 0], 
+			[0, -1, 0]
+		];
 		path = path_circle(0.01, 10);
 		geom = generar_superficie_barrido(path, shape, false, 6, 15);
 		

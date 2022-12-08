@@ -48,6 +48,7 @@ lightIsDirUniform = null;
 debugMode = null;
 camPosUniform = null;
 
+angle = 0;
 
 function getUniforms(program) {
 	modelMatrixUniform = gl.getUniformLocation(program, "modelMatrix");
@@ -65,7 +66,7 @@ function getUniforms(program) {
 	camPosUniform = gl.getUniformLocation(program, "uCamPos");
 }
 
-function setupMatrices() {
+function setupViewMatrix() {
 	var obj = mCamara.obtenerTarget();
 	
 	mat4.lookAt(viewMatrix,
@@ -73,18 +74,27 @@ function setupMatrices() {
 		vec3.fromValues(obj[0], obj[1], obj[2]),
 		vec3.fromValues(0, 1, 0)
 	);
-	
-	mat4.copy(viewDirectionProjectionInverseMatrix, viewMatrix);
+}
 
+function setupShaderCielo() {
+	mat4.copy(viewDirectionProjectionInverseMatrix, viewMatrix);
+	
+	mat4.rotate(viewDirectionProjectionInverseMatrix,
+		viewDirectionProjectionInverseMatrix,
+		angle,
+		vec3.fromValues(0, 1, 0),
+	);
+	
 	viewDirectionProjectionInverseMatrix[12] = 0;
 	viewDirectionProjectionInverseMatrix[13] = 0;
 	viewDirectionProjectionInverseMatrix[14] = 0;
 	
 	mat4.mul(viewDirectionProjectionInverseMatrix, projMatrix, viewDirectionProjectionInverseMatrix);
 	mat4.invert(viewDirectionProjectionInverseMatrix, viewDirectionProjectionInverseMatrix);
+	
 }
 
-function setupVertexShaderMatrixTerreno(munPos, antPos1, antPos2) {
+function setupShaderTerreno(munPos, antPos1, antPos2) {
 	gl.useProgram(glProgramTerreno);
 	getUniforms(glProgramTerreno);
 
@@ -109,7 +119,7 @@ function setupVertexShaderMatrixTerreno(munPos, antPos1, antPos2) {
 }
 
 
-function setupVertexShaderMatrix(munPos, antPos1, antPos2) {
+function setupShader(munPos, antPos1, antPos2) {
 	gl.useProgram(glProgram);
 	getUniforms(glProgram);
 
@@ -245,19 +255,21 @@ function draw_scene() {
 		mTerreno.apagarLava();
 	}
 
-	setupMatrices();
+	setupViewMatrix();
 	setupLights();
 	
+	setupShaderCielo();
+
 	mCielo.m = viewDirectionProjectionInverseMatrix;
 	
 	let m = mat4.create();
 	mat4.identity(m, m);
 
-	setupVertexShaderMatrix();
+	setupShader();
 	mCastillo.dibujar(m);
 	mCatapulta.dibujar(m);
 
-	setupVertexShaderMatrixTerreno();
+	setupShaderTerreno();
 	
 	mCielo.dibujar();
 	mTerreno.dibujar(m);
@@ -270,10 +282,12 @@ function draw_scene() {
 
 
 function tick() {
-	requestAnimationFrame(tick);
+	angle = performance.now() / 1000000 * 2 * Math.PI;
 	mCamara.rotar();
-
+	
 	draw_scene();
+
+	requestAnimationFrame(tick);
 }
 
 window.onload = initWebGL;

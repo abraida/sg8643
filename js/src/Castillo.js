@@ -306,9 +306,8 @@ class Castillo extends Objeto{
 		v.setTextureBuffer(geom.uvBuffer);
 		
 		v.setRotacion(0, 1, 0, Math.PI);
-		
-		v.setColor(100, 40, 40 , 200);
-		v.setShininess(100);
+		v.crearTextura("res/window.png", "uDiffTex");
+		v.setShininess(200);
 
 		return v;
 	}

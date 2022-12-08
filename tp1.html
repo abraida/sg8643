@@ -69,7 +69,6 @@
                         
                         vNormal = normalize(normalMatrix * vec4(aVertexNormal, 1.0)).xyz;
         
-                        
                         vec3 t = normalize(normalMatrix * vec4(aVertexTan, 1.0)).xyz;     
         
                         vec3 b = normalize(normalMatrix * vec4(aVertexBin, 1.0)).xyz;
@@ -127,7 +126,7 @@
                         }
         
                         return  (diff * lightColor * vec3(tex) + 
-                                    .3 * tex[3] * specular * lightColor);        
+                                    .5 * specular * lightColor);        
                     
                     }  
         
@@ -152,7 +151,7 @@
           			     coeff[2] * (distance * distance));
         
                         return  (diff * lightColor * vec3(tex) * attenuation + 
-                                    .3 * tex[3] * specular * lightColor * attenuation);        
+                                    .5 * specular * lightColor * attenuation);        
         
                     }  
         
@@ -276,11 +275,12 @@
                         vPosWorld=(modelMatrix*vec4(aVertexPosition,1.0)).xyz;    
                         vCamPosWorld=(modelMatrix*vec4(uCamPos,1.0)).xyz;   
                         
-                        vNormal= (normalMatrix*vec4(normalize(aVertexNormal),1.0)).xyz;     
+                        vNormal = normalize(normalMatrix * vec4(aVertexNormal, 1.0)).xyz;   
                         
-                        vec3 t = (normalMatrix*vec4(normalize(aVertexTan),1.0)).xyz;     
+                        vec3 t = normalize(normalMatrix * vec4(aVertexTan, 1.0)).xyz;       
         
-                        vec3 b = (normalMatrix*vec4(normalize(aVertexBin),1.0)).xyz;     
+                        vec3 b = normalize(normalMatrix * vec4(aVertexBin, 1.0)).xyz;
+
                         vTBN = mat3(t, b, vNormal);
 
                         if(vPosWorld[0] != -999999.0) {
@@ -442,7 +442,7 @@
                 }
 
                 return  (diff * lightColor * tex + 
-                            .45 * tex * specular * lightColor);        
+                            .5 * specular * lightColor);        
             
             }  
         
@@ -467,7 +467,7 @@
                     coeff[2] * (distance * distance));
 
                 return  (diff * lightColor * tex * attenuation + 
-                            0.3 * tex * specular * lightColor * attenuation);        
+                            0.5  * specular * lightColor * attenuation);        
 
             }  
 
