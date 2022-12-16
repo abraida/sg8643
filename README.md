@@ -1,7 +1,3 @@
 # Trabajo Practico Sistemas Graficos 8643
 
-Incompleto
-## Por hacer
-
-*	Puerta
-*	Arreglar catapulta
+[link](https://abraida.github.io/sg8643/tp1.html)
